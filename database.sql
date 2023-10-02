@@ -1,0 +1,13 @@
+-- Create the new database IT490 if it doesn't exist
+CREATE DATABASE IF NOT EXISTS IT490;
+
+USE IT490;
+
+CREATE TABLE IF NOT EXISTS users (
+    UserId INT AUTO_INCREMENT PRIMARY KEY,
+    Username VARCHAR(255) NOT NULL,
+    Password VARCHAR(255) NOT NULL,
+    Email VARCHAR(255) NOT NULL
+);
+
+COMMIT;
