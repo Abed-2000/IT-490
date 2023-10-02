@@ -1,4 +1,3 @@
--- Create the new database IT490 if it doesn't exist
 CREATE DATABASE IF NOT EXISTS IT490;
 
 USE IT490;
@@ -11,3 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 COMMIT;
+
+/*Creating Test User Account*/
+
+INSERT INTO `users`(UserId,Username,`Password`, Email) VALUES (1, 'testUser', '12345', 'testUser@test.com');
