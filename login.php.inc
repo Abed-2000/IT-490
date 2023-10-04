@@ -35,6 +35,28 @@ public function validateLogin($username,$password)
 	echo "passwords did not match for $username".PHP_EOL;
 		return array('returnCode' => 0, 'message'=>"Login Failed.");
 }
+
+public function createUser($username, $password, $email)
+{
+	$un = $this->logindb->real_escape_string($username);
+	$pw = $this->logindb->real_escape_string($password);
+	$em = $this->logindb->real_escape_string($email);
+	$statement = "select * from users where Username = '$un'";
+	$results = $this->logindb->query($statement);
+	
+	if($results->num_rows > 0){
+		echo "account with username already exists".PHP_EOL;
+			return array("returnCode" => 0, 'message'=>"Username Already Exists.");
+	}else{
+		$addUser = "INSERT INTO users (Username, Password, Email) VALUES ('$un', '$pw', '$em')";
+		if($this->logindb->query($addUser)){
+			echo "new user has been created".PHP_EOL;
+				return array("returnCode" => 1, 'message'=>"New User Created.");
+			}else{
+				return array("returnCode" => 2, 'message'=>"Unable to Create New User.");
+			}
+		}
+	}
 }
 
 ?>
