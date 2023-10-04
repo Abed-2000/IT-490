@@ -9,6 +9,13 @@ CREATE TABLE IF NOT EXISTS users (
     Email VARCHAR(255) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS sessions (
+    SessionID VARCHAR(255) PRIMARY KEY,
+    UserId INT REFERENCES users(UserId),
+    CreationTime TIMESTAMP NOT NULL,
+    ExpiryTime TIMESTAMP NOT NULL
+);
+
 COMMIT;
 
 /*Creating Test User Account*/
