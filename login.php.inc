@@ -29,11 +29,12 @@ public function validateLogin($username,$password)
 		if ($row["Password"] == $pw)
 		{
 			echo "passwords match for $username".PHP_EOL;
-			return 1;// password match
+				return array("returnCode" => 1, 'message'=>"Login Successful.");
 		}
-		echo "passwords did not match for $username".PHP_EOL;
 	}
-	return 0;//no users matched username
+	echo "passwords did not match for $username".PHP_EOL;
+		return array('returnCode' => 0, 'message'=>"Login Failed.");
 }
 }
+
 ?>
