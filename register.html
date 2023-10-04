@@ -81,6 +81,7 @@
         var responseObject = JSON.parse(response);
         if (responseObject.returnCode == 1) {
             console.log("Account Created Successfully.");
+            window.location.href = "/index.html"
         } else {
             console.log(responseObject);
             console.log("Account Creation Failed: " + responseObject.message);
