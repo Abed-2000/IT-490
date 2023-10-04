@@ -14,6 +14,12 @@ function doLogin($username,$password)
     //return false if not valid
 }
 
+function doCreateUser($username, $password, $email)
+{
+  $login = new loginDB();
+  return $login->createUser($username, $password, $email);
+}
+
 function requestProcessor($request)
 {
   echo "received request".PHP_EOL;
@@ -28,6 +34,8 @@ function requestProcessor($request)
       return doLogin($request['username'],$request['password']);
     case "validate_session":
       return doValidate($request['sessionId']);
+    case "register":
+      return doCreateUser($request['username'], $request['password'], $request['email']);
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }
