@@ -71,10 +71,10 @@
         var verifyPassword = document.getElementById("verifyPassword").value;
         var email = document.getElementById("email").value;
 
-        if (verifyPassword !== password) {
-            window.alert("Passwords do not match.");
-        } else {
+        if (verifyPassword === password) {
             SendRegistrationRequest(username, password, email);
+        } else {
+            window.alert("Passwords do not match.");
         }
     }
     function HandleRegistrationResponse(response) {
