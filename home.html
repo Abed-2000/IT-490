@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Homepage</title>
+    </head>>
+    <body>
+        <h1 id="msg"></h1>
+    </body>
+</html>
+<script>
+    function getCookie(){
+        const sessionID = ('; ' + document.cookie).split('; sessionID=').pop().split(';')[0];
+        return sessionID;
+    }
+
+    function sendSessionValidation(ID) {
+        var request = new XMLHttpRequest();
+        request.open("POST", "sessionRequest.php", true);
+        request.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleSessionResponse(response);
+            }
+        };
+        request.send(
+            "type=validate_session&sessionID=" + ID
+        );
+        console.log("Request Sent");
+    }
+    function HandleSessionResponse(response) {
+        var msgObject = document.getElementById("msg");
+        var responseObject = JSON.parse(response);
+        console.log(responseObject);
+        if (responseObject != NULL) {
+            console.log("Validation Successful.");
+            msgObject.innerHTML = "Welcome " + responseObject;
+        } else {
+            console.log("Validation Failed: Session not found.");
+        }
+    }
+
+    sendSessionValidation(getCookie());
+
+</script>
