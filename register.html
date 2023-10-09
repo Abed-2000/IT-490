@@ -5,7 +5,7 @@
     </head>
     <body>
         <h1>Register</h1>
- 
+	    <form action="registrationRequest.php" method="post">
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required /><br /><br />
 
@@ -40,40 +40,29 @@
 </html>
 
 <script>
-//       <form action="registrationRequest.php" method="post">
     function validate() {
     	var username = document.getElementById("username").value;
         var password = document.getElementById("password").value;
         var verifyPassword = document.getElementById("verifyPassword").value;
         var email = document.getElementById("email").value;
 
-	let re = new RegExp("/.+/;");
+	re = /.+/;
 	let userResult = re.test(username);
-	const passwordRe = new RegExp("^.{5, }$");
-	let passwordResult = passwordRe.test(password);
-	const emailRe = new RegExp("/^\S+@\S+\.\$/");
-	let emailResult = emailRe.test(email);
-	
-	
-        if (verifyPassword === password) {
+	re = /.{5,}/;
+	let passwordResult = re.test(password);
+	re = /^.+@.+\..+$/;
+	let emailResult = re.test(email);
+
+	if (verifyPassword !== password){
+	    window.alert("Passwords must match.");
+	} else if (userResult === false){
+	    window.alert("Enter a valid username.");
+	} else if (passwordResult === false){
+	    window.alert("Enter a valid password.");
+	} else if (emailResult === false){
+	    window.alert("Please enter valid email.");
         } else {
-            window.alert("Passwords do not match.");
-        } 
-        
-        if (userResult = true) {
-        } else {
-            window.alert("Enter a username.");
-        }
-        
-        if (passwordResult = true) {
-        } else {
-            window.alert("Password must be at least 5 characters.");
-        }
-        
-        if (emailResult = true) {
             SendRegistrationRequest(username, password, email);
-        } else {
-            window.alert("Please enter valid email.");
         }
     } 
 
