@@ -5,7 +5,7 @@
     </head>
     <body>
         <h1>Register</h1>
-        <form action="registrationRequest.php" method="post">
+ 
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required /><br /><br />
 
@@ -33,13 +33,50 @@
                 required
             /><br /><br />
 
-            <input type="button" value="Register" onclick="SendRegistrationData()" />
+            <input type="button" value="Register" onclick="validate()" />
         </form>
         <p>Already have an account? <a href="index.html">Click here.</a></p>
     </body>
 </html>
 
 <script>
+//       <form action="registrationRequest.php" method="post">
+    function validate() {
+    	var username = document.getElementById("username").value;
+        var password = document.getElementById("password").value;
+        var verifyPassword = document.getElementById("verifyPassword").value;
+        var email = document.getElementById("email").value;
+
+	let re = new RegExp("/.+/;");
+	let userResult = re.test(username);
+	const passwordRe = new RegExp("^.{5, }$");
+	let passwordResult = passwordRe.test(password);
+	const emailRe = new RegExp("/^\S+@\S+\.\$/");
+	let emailResult = emailRe.test(email);
+	
+	
+        if (verifyPassword === password) {
+        } else {
+            window.alert("Passwords do not match.");
+        } 
+        
+        if (userResult = true) {
+        } else {
+            window.alert("Enter a username.");
+        }
+        
+        if (passwordResult = true) {
+        } else {
+            window.alert("Password must be at least 5 characters.");
+        }
+        
+        if (emailResult = true) {
+            SendRegistrationRequest(username, password, email);
+        } else {
+            window.alert("Please enter valid email.");
+        }
+    } 
+
     function SendRegistrationRequest(username, password, email) {
         var request = new XMLHttpRequest();
         request.open("POST", "registrationRequest.php", true);
@@ -65,18 +102,18 @@
         console.log("Request Sent");
     }
 
-    function SendRegistrationData() {
-        var username = document.getElementById("username").value;
-        var password = document.getElementById("password").value;
-        var verifyPassword = document.getElementById("verifyPassword").value;
-        var email = document.getElementById("email").value;
+    //function SendRegistrationData() {
+      //  var username = document.getElementById("username").value;
+        //var password = document.getElementById("password").value;
+        //var verifyPassword = document.getElementById("verifyPassword").value;
+        //var email = document.getElementById("email").value;
 
-        if (verifyPassword === password) {
-            SendRegistrationRequest(username, password, email);
-        } else {
-            window.alert("Passwords do not match.");
-        }
-    }
+        //if (verifyPassword === password) {
+          //  SendRegistrationRequest(username, password, email);
+        //} else {
+          //  window.alert("Passwords do not match.");
+        //}
+    //}
     function HandleRegistrationResponse(response) {
         var responseObject = JSON.parse(response);
         if (responseObject.returnCode == 1) {
