@@ -2,18 +2,26 @@
 <html>
     <head>
         <title>Homepage</title>
-    </head>>
+    </head>
     <body>
+        <nav>
+            <input type="button" value="Logout" onclick="logoutBtn()" />
+        </nav>
         <h1 id="msg"></h1>
     </body>
 </html>
 <script>
-    function getCookie(){
-        const sessionID = ('; ' + document.cookie).split('; sessionID=').pop().split(';')[0];
-        return sessionID;
+    function getCookieValue(cookieName) {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(`${cookieName}=`)) {
+                return cookie.substring(cookieName.length + 1);
+            }
+        }
     }
 
-    function sendSessionValidation(ID) {
+    function RequestSessionValidation(ID) {
         var request = new XMLHttpRequest();
         request.open("POST", "sessionRequest.php", true);
         request.setRequestHeader(
@@ -27,23 +35,55 @@
                 HandleSessionResponse(response);
             }
         };
-        request.send(
-            "type=validate_session&sessionID=" + ID
-        );
+        request.send("type=validate_session&sessionID=" + ID);
         console.log("Request Sent");
     }
     function HandleSessionResponse(response) {
         var msgObject = document.getElementById("msg");
         var responseObject = JSON.parse(response);
-        console.log(responseObject);
-        if (responseObject != NULL) {
+        if (responseObject.returnCode == 1) {
             console.log("Validation Successful.");
-            msgObject.innerHTML = "Welcome " + responseObject;
+            msgObject.innerHTML = "Welcome " + getCookieValue("username");
         } else {
-            console.log("Validation Failed: Session not found.");
+            console.log("Invalid session found.");
+            location.href = "index.html";
+        }
+    }
+    
+    function SendLogoutRequest(ID){
+        var request = new XMLHttpRequest();
+        request.open("POST", "sessionRequest.php", true);
+        request.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleLogoutResponse(response);
+            }
+        };
+        request.send("type=logout&sessionID=" + ID);
+        console.log("Request Sent");
+    }
+
+    function HandleLogoutResponse(response) {
+        var msgObject = document.getElementById("msg");
+        var responseObject = JSON.parse(response);
+        if (responseObject.returnCode == 1) {
+            console.log("Logout Successful.");
+            location.href = "index.html"
+
+        } else {
+            console.log("Error logging out.");
         }
     }
 
-    sendSessionValidation(getCookie());
+    function logoutBtn(){
+        SendLogoutRequest(getCookieValue("sessionID"));
+    }
+    
+    RequestSessionValidation(getCookieValue("sessionID"));
 
 </script>
