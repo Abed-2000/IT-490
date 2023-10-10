@@ -10,7 +10,7 @@ function validate_session($sessionId)
     $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
 
     if ($conn->connect_error) {
-        return false;
+        return array('returnCode' => 0, 'message' => 'Error connecting to database.');
     }
 
     $sessionId = $conn->real_escape_string($sessionId);
@@ -19,10 +19,10 @@ function validate_session($sessionId)
 
     if($results->num_rows == 1){
         echo "Valid sessionID confirmed.".PHP_EOL;
-        return array("returnCode" => 1, 'message'=>"Valid Session ID.");
+        return array('returnCode' => 1, 'message'=>'Valid Session ID.');
     }else{
         echo "Invalid sessionID confirmed.".PHP_EOL;
-        return array("returnCode" => 0, 'message' => "Invalid Session ID.");
+        return array('returnCode' => 0, 'message' => 'Invalid Session ID.');
     }
 }
 
@@ -32,7 +32,7 @@ function read_session($sessionId)
     $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
 
     if ($conn->connect_error) {
-        return false;
+        return array('returnCode' => 0, 'message' => 'Error connecting to database.');
     }
 
     $sessionId = $conn->real_escape_string($sessionId);
@@ -41,9 +41,9 @@ function read_session($sessionId)
 
     if ($result && $result->num_rows == 1) {
         $row = $result->fetch_assoc();
-        return $row['data'];
+        return array('returnCode' => 1, 'message' => 'Session data found', 'data' => $row['data']);
     } else {
-        return 0;
+        return array('returnCode' => 0, 'message' => 'Session data could not be read');
     }
 }
 
@@ -53,19 +53,19 @@ function write_session($sessionId, $sessionData)
     $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
 
     if ($conn->connect_error) {
-        return false;
+        return array('returnCode' => 0, 'message' => 'Error connecting to database.');
     }
 
     $sessionId = $conn->real_escape_string($sessionId);
     $sessionData = $conn->real_escape_string($sessionData);
-    $expiryTime = date('Y-m-d H:i:s', strtotime('+30 minutes'));
+    $expiryTime = date('Y-m-d H:i:s', strtotime('+10 minutes'));
 
     $query = "INSERT INTO sessions (SessionID, data, CreationTime, ExpiryTime) 
               VALUES ('$sessionId', '$sessionData', NOW(), '$expiryTime') 
               ON DUPLICATE KEY UPDATE data = VALUES(data), ExpiryTime = VALUES(ExpiryTime)";
     $conn->query($query);
 
-    return true;
+    return array('returnCode' => 1, 'message' => 'Session data written.');
 }
 
 function destroy_session($sessionId)
@@ -74,14 +74,14 @@ function destroy_session($sessionId)
     $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
 
     if ($conn->connect_error) {
-        return false;
+        return array('returnCode' => 0, 'message' => 'Error connecting to database.');
     }
 
     $sessionId = $conn->real_escape_string($sessionId);
     $query = "DELETE FROM sessions WHERE SessionID = '$sessionId'";
     $conn->query($query);
 
-    return true;
+    return array('returnCode' => 1, 'message' => 'Session Destroyed.');
 }
 
 function garbage_collection()
@@ -90,12 +90,12 @@ function garbage_collection()
     $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
 
     if ($conn->connect_error) {
-        return false;
+        return array('returnCode' => 0, 'message' => 'Error connecting to database.');
     }
 
     $query = "DELETE FROM sessions WHERE ExpiryTime <= NOW()";
     $conn->query($query);
 
-    return true;
+    return array('returnCode' => 1, 'message' => 'Garbage collection completed.');
 }
 ?>
