@@ -23,7 +23,7 @@ function doCreateUser($username, $password, $email)
 
 function doValidate($sessionID)
 {
-  return read_session($sessionID);
+  return validate_session($sessionID);
 }
 
 function requestProcessor($request)
