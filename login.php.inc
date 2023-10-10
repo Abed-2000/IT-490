@@ -34,13 +34,13 @@ public function validateLogin($username,$password)
 			$write_session = write_session($sessionID, $un);
 			if ($sessionID != NULL){
 				echo "passwords match for $username".PHP_EOL;
-				return array("returnCode" => 1, 'message'=>"Login Successful.", 'sessionID' => $sessionID);
+				return array('returnCode' => 1, 'message' => 'Login Successful.', 'sessionID' => $sessionID);
 			}else{
-				return array("returnCode" => 0, 'message'=> "Error creating session.");
+				return array('returnCode' => 0, 'message'=> 'Error creating session.');
 			}
 		}
 		echo "passwords did not match for $username".PHP_EOL;
-		return array('returnCode' => 0, 'message'=>"Login Failed.");
+		return array('returnCode' => 0, 'message' => 'Login Failed.');
 	}
 }
 public function createUser($username, $password, $email)
@@ -53,14 +53,14 @@ public function createUser($username, $password, $email)
 	
 	if($results->num_rows > 0){
 		echo "account with username already exists".PHP_EOL;
-			return array("returnCode" => 0, 'message'=>"Username Already Exists.");
+			return array('returnCode' => 0, 'message' => 'Username already exists.');
 	}else{
 		$addUser = "INSERT INTO users (Username, Password, Email) VALUES ('$un', '$pw', '$em')";
 		if($this->logindb->query($addUser)){
 			echo "new user has been created".PHP_EOL;
-				return array("returnCode" => 1, 'message'=>"New User Created.");
+				return array('returnCode' => 1, 'message' => 'New User Created.');
 			}else{
-				return array("returnCode" => 2, 'message'=>"Unable to Create New User.");
+				return array('returnCode' => 0, 'message' => 'Unable to Create New User.');
 			}
 		}
 	}
