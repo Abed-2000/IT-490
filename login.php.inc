@@ -1,4 +1,5 @@
 <?php
+require_once('sessions_handler.php');
 
 class loginDB
 {
@@ -27,15 +28,21 @@ public function validateLogin($username,$password)
 	{
 		echo "checking password for $username".PHP_EOL;
 		if ($row["Password"] == $pw)
-		{
-			echo "passwords match for $username".PHP_EOL;
-				return array("returnCode" => 1, 'message'=>"Login Successful.");
+		{	
+			garbage_collection();
+			$sessionID = session_create_id();
+			$write_session = write_session($sessionID, $un);
+			if ($sessionID != NULL){
+				echo "passwords match for $username".PHP_EOL;
+				return array("returnCode" => 1, 'message'=>"Login Successful.", 'sessionID' => $sessionID);
+			}else{
+				return array("returnCode" => 0, 'message'=> "Error creating session.");
+			}
 		}
-	}
-	echo "passwords did not match for $username".PHP_EOL;
+		echo "passwords did not match for $username".PHP_EOL;
 		return array('returnCode' => 0, 'message'=>"Login Failed.");
+	}
 }
-
 public function createUser($username, $password, $email)
 {
 	$un = $this->logindb->real_escape_string($username);
