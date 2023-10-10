@@ -4,6 +4,28 @@ $dbUsername = 'testUser';
 $dbPassword = '12345';
 $dbName = 'IT490';
 
+function validate_session($sessionId)
+{
+    global $dbHost, $dbUsername, $dbPassword, $dbName;
+    $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
+
+    if ($conn->connect_error) {
+        return false;
+    }
+
+    $sessionId = $conn->real_escape_string($sessionId);
+    $query = "SELECT data FROM sessions WHERE SessionID = '$sessionId' AND ExpiryTime > NOW()";
+    $result = $conn->query($query);
+
+    if($results->num_rows == 1){
+        echo "Valid sessionID confirmed.".PHP_EOL;
+        return array("returnCode" => 1, 'message'=>"Valid Session ID.");
+    }else{
+        echo "Invalid sessionID confirmed.".PHP_EOL;
+        return array("returnCode" => 0, 'message' => "Invalid Session ID.");
+    }
+}
+
 function read_session($sessionId)
 {
     global $dbHost, $dbUsername, $dbPassword, $dbName;
@@ -21,7 +43,7 @@ function read_session($sessionId)
         $row = $result->fetch_assoc();
         return $row['data'];
     } else {
-        return '000';
+        return 0;
     }
 }
 
