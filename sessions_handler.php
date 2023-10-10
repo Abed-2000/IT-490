@@ -10,14 +10,15 @@ function validate_session($sessionId)
     $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
 
     if ($conn->connect_error) {
-        return array('returnCode' => 0, 'message' => 'Error connecting to database.');
+		echo "Error connecting to database: ".$conn->connect_error.PHP_EOL;
+        exit(1);
     }
 
     $sessionId = $conn->real_escape_string($sessionId);
     $query = "SELECT data FROM sessions WHERE SessionID = '$sessionId' AND ExpiryTime > NOW()";
     $result = $conn->query($query);
 
-    if($results->num_rows == 1){
+    if($result->num_rows == 1){
         echo "Valid sessionID confirmed.".PHP_EOL;
         return array('returnCode' => 1, 'message'=>'Valid Session ID.');
     }else{
@@ -32,7 +33,8 @@ function read_session($sessionId)
     $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
 
     if ($conn->connect_error) {
-        return array('returnCode' => 0, 'message' => 'Error connecting to database.');
+		echo "Error connecting to database: ".$conn->connect_error.PHP_EOL;
+        exit(1);
     }
 
     $sessionId = $conn->real_escape_string($sessionId);
@@ -53,7 +55,8 @@ function write_session($sessionId, $sessionData)
     $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
 
     if ($conn->connect_error) {
-        return array('returnCode' => 0, 'message' => 'Error connecting to database.');
+		echo "Error connecting to database: ".$conn->connect_error.PHP_EOL;
+        exit(1);
     }
 
     $sessionId = $conn->real_escape_string($sessionId);
@@ -74,7 +77,8 @@ function destroy_session($sessionId)
     $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
 
     if ($conn->connect_error) {
-        return array('returnCode' => 0, 'message' => 'Error connecting to database.');
+		echo "Error connecting to database: ".$conn->connect_error.PHP_EOL;
+        exit(1);
     }
 
     $sessionId = $conn->real_escape_string($sessionId);
@@ -90,7 +94,8 @@ function garbage_collection()
     $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
 
     if ($conn->connect_error) {
-        return array('returnCode' => 0, 'message' => 'Error connecting to database.');
+		echo "Error connecting to database: ".$conn->connect_error.PHP_EOL;
+        exit(1);
     }
 
     $query = "DELETE FROM sessions WHERE ExpiryTime <= NOW()";
