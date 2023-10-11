@@ -26,6 +26,11 @@ function doValidate($sessionID)
   return validate_session($sessionID);
 }
 
+function doLogout($sessionID)
+{
+  return destroy_session($sessionID);
+}
+
 function requestProcessor($request)
 {
   echo "received request".PHP_EOL;
@@ -42,6 +47,8 @@ function requestProcessor($request)
       return doValidate($request['sessionID']);
     case "register":
       return doCreateUser($request['username'], $request['password'], $request['email']);
+    case "logout":
+      return doLogout($request['sessionID']);
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }
