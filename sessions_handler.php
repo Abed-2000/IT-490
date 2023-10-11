@@ -10,7 +10,7 @@ function validate_session($sessionId)
     $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
 
     if ($conn->connect_error) {
-		echo "Error connecting to database: ".$conn->connect_error.PHP_EOL;
+        echo "Error connecting to database: " . $conn->connect_error . PHP_EOL;
         exit(1);
     }
 
@@ -18,11 +18,11 @@ function validate_session($sessionId)
     $query = "SELECT data FROM sessions WHERE SessionID = '$sessionId' AND ExpiryTime > NOW()";
     $result = $conn->query($query);
 
-    if($result->num_rows == 1){
-        echo "Valid sessionID confirmed.".PHP_EOL;
-        return array('returnCode' => 1, 'message'=>'Valid Session ID.');
-    }else{
-        echo "Invalid sessionID confirmed.".PHP_EOL;
+    if ($result->num_rows == 1) {
+        echo "Valid sessionID confirmed." . PHP_EOL;
+        return array('returnCode' => 1, 'message' => 'Valid Session ID.');
+    } else {
+        echo "Invalid sessionID confirmed." . PHP_EOL;
         return array('returnCode' => 0, 'message' => 'Invalid Session ID.');
     }
 }
@@ -33,7 +33,7 @@ function read_session($sessionId)
     $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
 
     if ($conn->connect_error) {
-		echo "Error connecting to database: ".$conn->connect_error.PHP_EOL;
+        echo "Error connecting to database: " . $conn->connect_error . PHP_EOL;
         exit(1);
     }
 
@@ -55,7 +55,7 @@ function write_session($sessionId, $sessionData)
     $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
 
     if ($conn->connect_error) {
-		echo "Error connecting to database: ".$conn->connect_error.PHP_EOL;
+        echo "Error connecting to database: " . $conn->connect_error . PHP_EOL;
         exit(1);
     }
 
@@ -77,7 +77,7 @@ function destroy_session($sessionId)
     $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
 
     if ($conn->connect_error) {
-		echo "Error connecting to database: ".$conn->connect_error.PHP_EOL;
+        echo "Error connecting to database: " . $conn->connect_error . PHP_EOL;
         exit(1);
     }
 
@@ -89,12 +89,12 @@ function destroy_session($sessionId)
 }
 
 function garbage_collection()
-{ 
+{
     global $dbHost, $dbUsername, $dbPassword, $dbName;
     $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
 
     if ($conn->connect_error) {
-		echo "Error connecting to database: ".$conn->connect_error.PHP_EOL;
+        echo "Error connecting to database: " . $conn->connect_error . PHP_EOL;
         exit(1);
     }
 
@@ -103,4 +103,3 @@ function garbage_collection()
 
     return array('returnCode' => 1, 'message' => 'Garbage collection completed.');
 }
-?>
