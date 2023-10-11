@@ -59,9 +59,13 @@
         var responseObject = JSON.parse(response);
         if (responseObject.returnCode == 1) {
             console.log("Login Successful.");
-            document.cookie = "sessionID=" + responseObject.sessionID + "; SameSite=Lax";
-            document.cookie = "username=" + document.getElementById("username").value + "; SameSite=Lax";
-            location.href = "home.html"
+            document.cookie =
+                "sessionID=" + responseObject.sessionID + "; SameSite=Lax";
+            document.cookie =
+                "username=" +
+                document.getElementById("username").value +
+                "; SameSite=Lax";
+            location.href = "home.html";
         } else {
             console.log(responseObject);
             console.log("Login Failed: " + responseObject.message);
