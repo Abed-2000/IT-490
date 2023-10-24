@@ -1,0 +1,35 @@
+2023-10-24 06:00:43pm
+error: rabbitMQServer: process_message: exception caught: mysqli_sql_exception: Host '172.26.11.12' is not allowed to connect to this MySQL server in /home/user/IT-490/login.php.inc:10
+Stack trace:
+#0 /home/user/IT-490/login.php.inc(10): mysqli->__construct()
+#1 /home/user/IT-490/testRabbitMQServer.php(13): loginDB->__construct()
+#2 /home/user/IT-490/testRabbitMQServer.php(45): doLogin()
+#3 /home/user/IT-490/rabbitMQLib.inc(59): requestProcessor()
+#4 [internal function]: rabbitMQServer->process_message()
+#5 /home/user/IT-490/rabbitMQLib.inc(123): AMQPQueue->consume()
+#6 /home/user/IT-490/testRabbitMQServer.php(64): rabbitMQServer->process_requests()
+#7 {main}
+2023-10-24 06:06:21pm
+
+error: rabbitMQServer: process_message: exception caught: mysqli_sql_exception: Host '172.26.11.12' is not allowed to connect to this MySQL server in /home/user/IT-490/sessions_handler.php:10
+Stack trace:
+#0 /home/user/IT-490/sessions_handler.php(10): mysqli->__construct()
+#1 /home/user/IT-490/testRabbitMQServer.php(26): validate_session()
+#2 /home/user/IT-490/testRabbitMQServer.php(47): doValidate()
+#3 /home/user/IT-490/rabbitMQLib.inc(59): requestProcessor()
+#4 [internal function]: rabbitMQServer->process_message()
+#5 /home/user/IT-490/rabbitMQLib.inc(123): AMQPQueue->consume()
+#6 /home/user/IT-490/testRabbitMQServer.php(64): rabbitMQServer->process_requests()
+#7 {main}
+2023-10-24 06:07:03pm
+Array
+error: rabbitMQServer: process_message: exception caught: mysqli_sql_exception: Host '172.26.11.12' is not allowed to connect to this MySQL server in /home/user/IT-490/login.php.inc:10
+Stack trace:
+#0 /home/user/IT-490/login.php.inc(10): mysqli->__construct()
+#1 /home/user/IT-490/testRabbitMQServer.php(13): loginDB->__construct()
+#2 /home/user/IT-490/testRabbitMQServer.php(45): doLogin()
+#3 /home/user/IT-490/rabbitMQLib.inc(59): requestProcessor()
+#4 [internal function]: rabbitMQServer->process_message()
+#5 /home/user/IT-490/rabbitMQLib.inc(123): AMQPQueue->consume()
+#6 /home/user/IT-490/testRabbitMQServer.php(64): rabbitMQServer->process_requests()
+#7 {main}

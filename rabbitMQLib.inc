@@ -1,6 +1,7 @@
 <?php
 
 require_once('get_host_info.inc');
+require('log_maker.php');
 
 class rabbitMQServer
 {
@@ -83,7 +84,7 @@ class rabbitMQServer
 		catch(Exception $e)
 		{
 			// ampq throws exception if get fails...
-			echo "error: rabbitMQServer: process_message: exception caught: ".$e;
+			log_this("error: rabbitMQServer: process_message: exception caught: ".$e);
 		}
 		// message does not require a response, send ack immediately
 		$body = $msg->getBody();
