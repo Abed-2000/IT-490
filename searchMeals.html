@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Search Meals</title>
+    </head>
+    <body>
+        <nav>
+            <input type="button" value="Home" onclick="window.location.href='home.html'" />
+            <input type="button" value="Logout" onclick="logoutBtn()" />
+        </nav>
+        <h1 id="msg">Search Meals</h1>
+        <h2 id="msg2">
+            <input type="text" id="mealKeyword" autofocus required>
+            <input type="button" id="excuteSearch" value="Go" onclick="goButton()"/>
+        </h2>
+        <div id="api_content"></div>
+    </body>
+</html>
+
+<script>
+    function getCookieValue(cookieName) {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(`${cookieName}=`)) {
+                return cookie.substring(cookieName.length + 1);
+            }
+        }
+    }
+
+    function RequestSessionValidation(ID) {
+        var request = new XMLHttpRequest();
+        request.open("POST", "sessionRequest.php", true);
+        request.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleSessionResponse(response);
+            }
+        };
+        request.send("type=validate_session&sessionID=" + ID);
+        console.log("Request Sent");
+    }
+    function HandleSessionResponse(response) {
+        var msgObject = document.getElementById("msg");
+        var msgObject2 = document.getElementById("msg2")
+        var responseObject = JSON.parse(response);
+        if (responseObject.returnCode == 1) {
+            console.log("Validation Successful.");
+        } else {
+            console.log("Invalid session found.");
+            location.href = "index.html";
+        }
+    }
+    
+    function SendLogoutRequest(ID){
+        var request = new XMLHttpRequest();
+        request.open("POST", "sessionRequest.php", true);
+        request.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleLogoutResponse(response);
+            }
+        };
+        request.send("type=logout&sessionID=" + ID);
+        console.log("Request Sent");
+    }
+
+    function HandleLogoutResponse(response) {
+        var msgObject = document.getElementById("msg");
+        var responseObject = JSON.parse(response);
+        if (responseObject.returnCode == 1) {
+            console.log("Logout Successful.");
+            location.href = "index.html"
+
+        } else {
+            console.log("Error logging out.");
+        }
+    }
+
+    function logoutBtn(){
+        SendLogoutRequest(getCookieValue("sessionID"));
+    }
+    
+    function goButton(){
+        var searchKeywords = document.getElementById("mealKeyword").value;
+        RequestSessionValidation(getCookieValue("sessionID"));
+        searchRequest(searchKeywords);
+    }
+    function searchRequest(query) {
+        var request = new XMLHttpRequest();
+        request.open("POST", "searchRequest.php", true);
+        request.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleSearchResponse(response);
+            }
+        };
+        request.send("type=searchMeals&query=" + query);
+        console.log("Search Request Sent");
+    }
+    function HandleSearchResponse(response) {
+        var msgObject = document.getElementById("api_content");
+        msgObject.innerHTML = "";
+        var responseObject = JSON.parse(response);
+        if (responseObject.returnCode = 1) {
+            var messageArray = responseObject.message;
+            for (var i=0; i < messageArray.length; i++){
+                var item = messageArray[i];
+                var image = document.createElement("img");
+                image.src = item.strMealThumb;
+                var mealLink = document.createElement("a");
+                mealLink.href = "#";
+                mealLink.innerText = item.strMeal;
+                var origin = document.createElement("p");
+                origin.textContent = item.strArea;
+                var ItemDiv = document.createElement("div");
+                ItemDiv.appendChild(image);
+                ItemDiv.appendChild(mealLink);
+                ItemDiv.appendChild(origin);
+                msgObject.appendChild(ItemDiv);
+            }
+        }
+    }
+
+    RequestSessionValidation(getCookieValue("sessionID"));
+
+</script>
