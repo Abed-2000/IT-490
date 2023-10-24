@@ -53,6 +53,12 @@ function requestProcessor($request)
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }
 
+function sendDB($message) {
+    $client = new rabbitMQClient('testRabbitMQ.ini','testServer');
+    $response = $client -> send_request($message);
+    return $response;
+}
+
 $server = new rabbitMQServer("testRabbitMQ.ini","testServer");
 
 $server->process_requests('requestProcessor');
