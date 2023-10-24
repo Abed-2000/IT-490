@@ -117,7 +117,7 @@
         var msgObject = document.getElementById("api_content");
         msgObject.innerHTML = "";
         var responseObject = JSON.parse(response);
-        if (responseObject.returnCode = 1) {
+        if (responseObject.returnCode == 1) {
             var messageArray = responseObject.message;
             for (var i=0; i < messageArray.length; i++){
                 var item = messageArray[i];
@@ -126,6 +126,8 @@
                 var mealLink = document.createElement("a");
                 mealLink.href = "#";
                 mealLink.innerText = item.strMeal;
+                mealLink.setAttribute("data-mealid", item.idMeal);
+                mealLink.addEventListener("click", handleMealLinkClick);
                 var origin = document.createElement("p");
                 origin.textContent = item.strArea;
                 var ItemDiv = document.createElement("div");
@@ -135,6 +137,11 @@
                 msgObject.appendChild(ItemDiv);
             }
         }
+    }
+    function handleMealLinkClick(event) {
+        event.preventDefault();
+        var mealId = event.target.getAttribute("data-mealid");
+        window.location.href = "mealOverview.html?mealId=" + mealId;
     }
 
     RequestSessionValidation(getCookieValue("sessionID"));
