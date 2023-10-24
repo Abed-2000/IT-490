@@ -9,17 +9,26 @@ function requestProcessor($request)
 {
     echo "received request" . PHP_EOL;
     var_dump($request);
-    switch ($request['type']) {
-      case "searchMeals":
-          if (isset($request['query'])) {
-              $response = searchMeals($request['query']);
-              var_dump($response);
-              return $response;
-          } else {
-              return ['status' => 'error', 'message' => 'Query parameter is missing'];
-          }
-        }
+    switch ($request['type']) 
+    {
+        case "searchMeals":
+            if (isset($request['query'])) {
+                $response = searchMeals($request['query']);
+                var_dump($response);
+                return $response;
+            } else {
+                return ['returnCode' => 0, 'message' => 'Query parameter is missing'];
+            }
+        case "mealDetails":
+            if (isset($request['query'])) {
+                $response = getMealDetails($request['query']);
+                var_dump($response);
+                return $response;
+            } else {
+                return ['returnCode' => 0, 'message' => 'Query parameter is missing'];
+            }
     }
+}
 
 $server = new rabbitMQServer("testRabbitMQ.ini","api");
 
