@@ -34,25 +34,21 @@
 </html>
 
 <script>
-    function SendLoginRequest(username, password) {
-        var request = new XMLHttpRequest();
-        request.open("POST", "loginRequest.php", true);
-        request.setRequestHeader(
-            "Content-Type",
-            "application/x-www-form-urlencoded"
-        );
-        request.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-                console.log(this);
-                var response = this.responseText;
-                HandleLoginResponse(response);
-            }
-        };
-        request.send(
-            "type=login&username=" + username + "&password=" + password
-        );
-        console.log("Request Sent");
-    }
+function SendLoginRequest(username, password) {
+    var request = new XMLHttpRequest();
+    request.open("POST", "loginRequest.php", true);
+    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    request.timeout = 20000;
+    request.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log("Request Sent");
+            console.log(this);
+            var response = this.responseText;
+            HandleLoginResponse(response);
+        }
+    };
+    request.send("type=login&username=" + encodeURIComponent(username) + "&password=" + encodeURIComponent(password));
+}
 
     function SendLoginData() {
         var username = document.getElementById("username").value;

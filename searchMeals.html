@@ -1,16 +1,22 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Homepage</title>
+        <title>Search Meals</title>
     </head>
     <body>
         <nav>
-            <input type="button" value="Search" onclick="window.location.href='searchMeals.html'" />
+            <input type="button" value="Home" onclick="window.location.href='home.html'" />
             <input type="button" value="Logout" onclick="logoutBtn()" />
         </nav>
-        <h1 id="msg"></h1>
+        <h1 id="msg">Search Meals</h1>
+        <h2 id="msg2">
+            <input type="text" id="mealKeyword" autofocus required>
+            <input type="button" id="excuteSearch" value="Go" onclick="goButton()"/>
+        </h2>
+        <div id="api_content"></div>
     </body>
 </html>
+
 <script>
     function getCookieValue(cookieName) {
         const cookies = document.cookie.split(";");
@@ -41,10 +47,10 @@
     }
     function HandleSessionResponse(response) {
         var msgObject = document.getElementById("msg");
+        var msgObject2 = document.getElementById("msg2")
         var responseObject = JSON.parse(response);
         if (responseObject.returnCode == 1) {
             console.log("Validation Successful.");
-            msgObject.innerHTML = "Welcome " + getCookieValue("username");
         } else {
             console.log("Invalid session found.");
             location.href = "index.html";
@@ -85,6 +91,59 @@
         SendLogoutRequest(getCookieValue("sessionID"));
     }
     
+    function goButton(){
+        var searchKeywords = document.getElementById("mealKeyword").value;
+        RequestSessionValidation(getCookieValue("sessionID"));
+        searchRequest(searchKeywords);
+    }
+    function searchRequest(query) {
+        var request = new XMLHttpRequest();
+        request.open("POST", "searchRequest.php", true);
+        request.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleSearchResponse(response);
+            }
+        };
+        request.send("type=searchMeals&query=" + query);
+        console.log("Search Request Sent");
+    }
+    function HandleSearchResponse(response) {
+        var msgObject = document.getElementById("api_content");
+        msgObject.innerHTML = "";
+        var responseObject = JSON.parse(response);
+        if (responseObject.returnCode == 1) {
+            var messageArray = responseObject.message;
+            for (var i=0; i < messageArray.length; i++){
+                var item = messageArray[i];
+                var image = document.createElement("img");
+                image.src = item.strMealThumb;
+                var mealLink = document.createElement("a");
+                mealLink.href = "#";
+                mealLink.innerText = item.strMeal;
+                mealLink.setAttribute("data-mealid", item.idMeal);
+                mealLink.addEventListener("click", handleMealLinkClick);
+                var origin = document.createElement("p");
+                origin.textContent = item.strArea;
+                var ItemDiv = document.createElement("div");
+                ItemDiv.appendChild(image);
+                ItemDiv.appendChild(mealLink);
+                ItemDiv.appendChild(origin);
+                msgObject.appendChild(ItemDiv);
+            }
+        }
+    }
+    function handleMealLinkClick(event) {
+        event.preventDefault();
+        var mealId = event.target.getAttribute("data-mealid");
+        window.location.href = "mealOverview.html?mealId=" + mealId;
+    }
+
     RequestSessionValidation(getCookieValue("sessionID"));
 
 </script>
