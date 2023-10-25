@@ -1,11 +1,16 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Meal Overview</title>
+        <link rel="stylesheet" href="styles.css">
+        <title>Meal Overview | Good Eats</title>
     </head>
     <body>
         <nav>
-            <input type="button" value="Home" onclick="window.location.href='home.html'" />
+	    <label>Good Eats<label>
+	    <input type="button" value="Home" onclick="window.location.href='home.html'" />
+            <input type="button" value="Search" onclick="window.location.href='searchMeals.html'" />
+            <input type="button" value="Rankings" onclick="window.location.href='mealRankings.html'" />
+            <input type="button" value="Create" onclick="window.location.href='createRecipe.html'" />
             <input type="button" value="Logout" onclick="logoutBtn()" />
         </nav>
         <h1 id="meal_name"></h1>

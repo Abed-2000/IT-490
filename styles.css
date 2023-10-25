@@ -1,8 +1,15 @@
 html {
-	background-color: rgb(89,86,78);
 	color: white;
+
+	background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),url(https://t3.ftcdn.net/jpg/05/59/07/38/360_F_559073851_ygDqkd4pCpnFBRYzzsY5tEs7mgIs0Hwp.jpg);
+	background-size: cover;
+	background-position: 40% 20%;
 }
 
+label {
+	font-size: 40px;
+	padding: 10px 10px;
+}
 
 h2 {
 	font-size: 100px;
@@ -12,6 +19,13 @@ h3{
 	font-size: 20px;
 }
 
-.button {
-	background-color: blue;
+input[type=button] {
+	padding: 10px 30px;
+	margin-right: 15px;
+	margin-left: 15px;
+	background-color: white;
+	border: none;
+	display: inline-block;
+	border-radius: 25%;
+	vertical-align: middle;
 }
