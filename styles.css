@@ -1,0 +1,17 @@
+html {
+	background-color: rgb(89,86,78);
+	color: white;
+}
+
+
+h2 {
+	font-size: 100px;
+}
+
+h3{
+	font-size: 20px;
+}
+
+.button {
+	background-color: blue;
+}
