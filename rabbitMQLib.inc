@@ -291,11 +291,30 @@ class rabbitMQClient
 			$this->conn_queue->setName($this->queue);
 			$this->conn_queue->bind($exchange->getName(),$this->routing_key);
 			return $exchange->publish($json_message,$this->routing_key);
-		}
-		catch(Exception $e)
+
+		    	// Set the QoS (Quality of Service) options, which controls how many messages are delivered in a single batch
+		    	$queue->setQos(0, 1);
+
+		    	// Consume messages from the existing queue
+		    	$queue->consume($message);
+		    	
+			// Process the message
+			echo 'Received: ' . $message->getBody() . "\n";
+
+			// Acknowledge the message to remove it from the queue
+			$message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);
+
+		    	// Run the consumer indefinitely
+		    	while (count($channel->callbacks)) 
+		    	{
+				$channel->wait();
+		    	}
+
+		}catch(Exception $e)
 		{
 			die("failed to send message to exchange: ". $e->getMessage()."\n");
 		}
+			
 	}
 }
 ?>

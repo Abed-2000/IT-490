@@ -11,11 +11,10 @@ function log_this($log_msg)
 		mkdir($log_filename, 0777, true);
 	}
 	$log_file_data = $log_filename . '.log';
-    file_put_contents($log_file_data, $log_time. "\n" .$log_msg . "\n\n", FILE_APPEND);
     
-    $client = new rabbitMQClient('log.ini','logger');
-    $publish = file_put_contents($log_file_data, $log_time. "\n" .$log_msg . "\n\n");
+    	$client = new rabbitMQClient('log.ini','logger');
+    	$publish = ($log_time. "\n" .$log_msg . "\n\n");
     
-    $subscribe = file_put_contents($publish, FILE_APPEND);
+    	$subscribe = file_put_contents($log_file_data, $log_time. "\n" .$log_msg . "\n\n", FILE_APPEND);
 }
 ?>
