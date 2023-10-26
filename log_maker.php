@@ -1,7 +1,9 @@
 <?php
+require_once('rabbitMQLib.inc');
+
 function log_this($log_msg)
 {
-	$log_time = date('Y-m-d h:i:sa');
+	$log_time = date('m-d-Y h:i:sa');
 	$log_filename = 'rabbit';
 	if (!file_exists($log_filename)) 
 	{
@@ -9,6 +11,11 @@ function log_this($log_msg)
 		mkdir($log_filename, 0777, true);
 	}
 	$log_file_data = $log_filename . '.log';
-    file_put_contents($log_file_data, $log_time. "\n" .$_SERVER. "\n" .$log_msg . "\n", FILE_APPEND);
+    file_put_contents($log_file_data, $log_time. "\n" .$log_msg . "\n\n", FILE_APPEND);
+    
+    $client = new rabbitMQClient('log.ini','logger');
+    $publish = file_put_contents($log_file_data, $log_time. "\n" .$log_msg . "\n\n");
+    
+    $subscribe = file_put_contents($publish, FILE_APPEND);
 }
 ?>
