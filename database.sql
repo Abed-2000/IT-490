@@ -16,6 +16,22 @@ CREATE TABLE IF NOT EXISTS sessions (
     ExpiryTime TIMESTAMP NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS ratings (
+    MealID int PRIMARY KEY,
+    UserID int,
+    Rating int
+);
+
+CREATE TABLE IF NOT EXISTS custom_recipes (
+    MealID int PRIMARY KEY,
+    strMeal varChar,
+    strMealThumb varChar,
+    strCatagory varChar,
+    strInstructions varChar,
+    strTags varChar
+    mealLink varChar,
+    strArea varChar
+);
 COMMIT;
 
 /*
