@@ -17,9 +17,9 @@ CREATE TABLE IF NOT EXISTS sessions (
 );
 
 CREATE TABLE IF NOT EXISTS ratings (
-    MealID int PRIMARY KEY,
-    UserID int,
-    Rating int
+    mealID int PRIMARY KEY,
+    accountID int,
+    rating int
 );
 
 CREATE TABLE IF NOT EXISTS custom_recipes (

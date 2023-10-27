@@ -20,6 +20,18 @@
         <div id="meal_instructions"></div>
         <div id="ingredients"></div>
         <div id="video"></div>
+        <form action="rateRequest.php" method="post">
+        	<label for="rating">Rate this Recipe:</label>
+        <select name="rating" id="rating">
+        	<option value=1>1</option>
+        	<option value=2>2</option>
+        	<option value=3>3</option>
+        	<option value=4>4</option>
+        	<option value=5>5</option>
+        </select>
+         <input type="button" value="Submit" onclick="SendRatingData()" />
+        </form>
+       <div id="complete"></div>
     </body>
 </html>
 
@@ -180,4 +192,52 @@
                 window.location.href = "home.html";
             }
         });
+        
+        
+        
+        
+        
+    function SendRatingRequest(mealID, accountID, rating) {
+    	getCookieValue("sessionID");
+        var request = new XMLHttpRequest();
+        request.open("POST", "rateRequest.php", true);
+        request.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleRegistrationResponse(response);
+            }
+        };
+        request.send(
+            "type=rate&accountID=" +
+                accountID +
+                "&mealID=" +
+                mealID +
+                "&rating=" +
+                rating
+        );
+        console.log("Request Sent");
+    }
+
+    function SendRatingData() {
+        var mealID = getCookieValue("mealID");
+        var accountID = getCookieValue("userID");
+        var rating = document.getElementById("rating").value;
+    }
+    function HandleRegistrationResponse(response) {
+        var responseObject = JSON.parse(response);
+        if (responseObject.returnCode == 1) {
+            console.log("Recipe Rated Successfully.");
+	    var complete = document.createElement("p");
+            complete.innerText = "Rating saved.";
+            complete.appendChild(complete);
+        } else {
+            console.log(responseObject);
+            console.log("Recipe Rating Failed: " + responseObject.message);
+        }
+    }
 </script>

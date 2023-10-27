@@ -5,6 +5,7 @@ require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 require_once('login.php.inc');
 include_once('sessions_handler.php');
+require_once('rateRequest.php.inc');
 
 function doLogin($username,$password)
 {
@@ -49,6 +50,8 @@ function requestProcessor($request)
       return doCreateUser($request['username'], $request['password'], $request['email']);
     case "logout":
       return doLogout($request['sessionID']);
+    case "rate":
+      return rateRecipe($request['mealID'], $request['accountID'], $request['rating']);
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }
