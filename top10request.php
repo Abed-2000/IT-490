@@ -7,8 +7,7 @@ require_once('rabbitMQLib.inc');
 if ($_POST){
     $request = array();
     $request['type'] = $_POST["type"];
-    $request['mealID'] = $_POST["mealID"];
-    $request['rating'] = $_POST["rating"];
+    
     $client = new rabbitMQClient("testRabbitMQ.ini", "testServer");
     $response = $client->send_request($request);
 
