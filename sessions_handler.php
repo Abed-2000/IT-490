@@ -103,3 +103,38 @@ function garbage_collection()
 
     return array('returnCode' => 1, 'message' => 'Garbage collection completed.');
 }
+
+function rateRecipe($mealID, $accountID, $rating)
+{
+    global $dbHost, $dbUsername, $dbPassword, $dbName;
+    $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
+
+    if ($conn->connect_error) {
+        echo "Error connecting to database: " . $conn->connect_error . PHP_EOL;
+        exit(1);
+    }
+    $mid = $conn->real_escape_string($mealID);
+    $aid = $conn->real_escape_string($accountID);
+    $rate = $conn->real_escape_string($rating);
+    $statement = "select * from ratings where mealID = '$mid' AND accountID = '$aid'";
+    $results = $conn->query($statement);
+
+    if($results->num_rows > 0){
+        $updateRating = "UPDATE ratings SET rating = '$rate' WHERE mealID = '$mid' AND accountID = '$aid'";
+        if($conn->query($updateRating)){
+            echo "rating was updated".PHP_EOL;
+            return array('returnCode' => 1, 'message' => 'Rating successfully updated.');
+          }
+          else{
+          return array('returnCode' => 0, 'message' => "Unable to update ratings");
+         }
+    }else{
+        $createRating = "INSERT INTO ratings (mealID, accountID, rating) VALUES ('$mid', '$aid', '$rate')";
+        if($conn->query($createRating)){
+            echo "new rating was made on this recipe".PHP_EOL;
+                return array('returnCode' => 1, 'message' => 'Recipe Rating Saved');
+            }else{
+                return array('returnCode' => 0, 'message' => 'Unable to Create Recipe Rating.');
+            }
+        }
+    } 

@@ -5,7 +5,6 @@ require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 require_once('login.php.inc');
 include_once('sessions_handler.php');
-require_once('rateRequest.php.inc');
 
 function doLogin($username,$password)
 {
@@ -31,6 +30,9 @@ function doLogout($sessionID)
 {
   return destroy_session($sessionID);
 }
+function doRate($mealID, $accountID, $rating){
+	return rateRecipe($mealID, $accountID, $rating);
+}
 
 function requestProcessor($request)
 {
@@ -51,19 +53,13 @@ function requestProcessor($request)
     case "logout":
       return doLogout($request['sessionID']);
     case "rate":
-      return rateRecipe($request['mealID'], $request['accountID'], $request['rating']);
+      return doRate($request['mealID'], $request['accountID'], $request['rating']);
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }
 
-function sendDB($message) {
-    $client = new rabbitMQClient('testRabbitMQ.ini','testServer');
-    $response = $client -> send_request($message);
-    return $response;
-}
 $server = new rabbitMQServer("testRabbitMQ.ini","testServer");
 
 $server->process_requests('requestProcessor');
 exit();
 ?>
-

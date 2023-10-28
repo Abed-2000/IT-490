@@ -6,11 +6,11 @@
     </head>
     <body>
         <nav>
-	    <label>Good Eats<label>
-	    <input type="button" value="Home" onclick="window.location.href='home.html'" />
-            <input type="button" value="Search" onclick="window.location.href='searchMeals.html'" />
+            <label>Good Eats<label>
+            <input type="button" value="Home" onclick="window.location.href='home.html'" />
+            <input type="button" value="New Reciepe" onclick="window.location.href='createRecipe.html'" />
             <input type="button" value="Rankings" onclick="window.location.href='mealRankings.html'" />
-            <input type="button" value="Create" onclick="window.location.href='createRecipe.html'" />
+            <input type="button" value="Search" onclick="window.location.href='searchMeals.html'" />
             <input type="button" value="Logout" onclick="logoutBtn()" />
         </nav>
         <h1 id="meal_name"></h1>
@@ -31,7 +31,6 @@
         </select>
          <input type="button" value="Submit" onclick="SendRatingData()" />
         </form>
-       <div id="complete"></div>
     </body>
 </html>
 
@@ -192,17 +191,13 @@
                 window.location.href = "home.html";
             }
         });
-        
-        
-        
-        
-        
-    function SendRatingRequest(mealID, accountID, rating) {
-        var request = new XMLHttpRequest();
-        request.open("POST", "ratingRequest.php", true);
-        request.setRequestHeader(
-            "Content-Type",
-            "application/x-www-form-urlencoded"
+     
+        function SendRatingRequest(mealID, accountID, rating) {
+            var request = new XMLHttpRequest();
+            request.open("POST", "ratingRequest.php", true);
+            request.setRequestHeader(
+                "Content-Type",
+                "application/x-www-form-urlencoded"
         );
         request.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
