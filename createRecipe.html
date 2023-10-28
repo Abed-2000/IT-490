@@ -10,11 +10,74 @@
             <input type="button" value="Logout" onclick="logoutBtn()" />
 
         </nav>
-        <h1 id="msg">Create New Reciepe</h1>
-        <h2 id="msg2">
-            <input type="text" id="mealKeyword" autofocus required>
-            <input type="button" id="excuteSearch" value="Go" onclick="goButton()"/>
-        </h2>
-        <div id="api_content"></div>
+        <body>
+            <h1>Create a New Meal Recipe</h1>
+        
+            <form action="#" method="POST">
+                <label for="strMeal">Recipe Name:</label>
+                <input type="text" name="strMeal" required><br><br>
+                
+                <label for="strCategory">Category:</label>
+                <select name="strCategory" required>
+                    <option value="">Select a Category</option>
+                </select><br><br>
+                
+                <label for="strArea">Area:</label>
+                <input type="text" name="strArea"><br><br>
+        
+                <label>Ingredients:</label>
+                <div id="ingredients-container">
+                    <div class="ingredient-row">
+                        <input type="text" name="strIngredients[]" placeholder="Ingredient Name">
+                        <input type="text" name="strMeasure[]" placeholder="Measurement">
+                    </div>
+                </div>
+                <button type="button" onclick="addIngredient()">Add Ingredient</button><br><br>
+                
+                <label for="strInstructions">Instructions:</label>
+                <textarea name="strInstructions" rows="4" required></textarea><br><br>
+                
+                <label for="strTags">Tags (Comma-separated):</label>
+                <input type="text" name="strTags"><br><br>
+                
+                <label for="strMealThumb">Thumbnail Image URL:</label>
+                <input type="text" name="strMealThumb"><br><br>
+        
+                <label for="strYoutube">Recipe Video URL:</label>
+                <input type="text" name="strYoutube"><br><br>
+                
+                <label for="datePublished">Publication Date:</label>
+                <input type="date" name="datePublished"><br><br>
+        
+                <label for="created_by">Created By:</label>
+                <input type="text" name="created_by" readonly><br><br>
+        
+                <input type="submit" value="Create Recipe">
+            </form>
     </body>
 </html>
+
+<script>
+    function addIngredient() {
+        const ingredientsContainer = document.querySelector('#ingredients-container');
+        const ingredientRows = ingredientsContainer.querySelectorAll('.ingredient-row');
+
+        if (ingredientRows.length < 20) {
+            const newIngredientRow = document.createElement('div');
+            newIngredientRow.classList.add('ingredient-row');
+            newIngredientRow.innerHTML = `
+                <input type="text" name="strIngredients[]" placeholder="Ingredient Name">
+                <input type="text" name="strMeasure[]" placeholder="Measurement">
+                <button type="button" onclick="removeIngredient(this)">Remove</button>
+            `;
+            ingredientsContainer.appendChild(newIngredientRow);
+        } else {
+            alert('You can add up to 20 ingredients.');
+        }
+    }
+
+    function removeIngredient(buttonElement) {
+        const ingredientsContainer = document.querySelector('#ingredients-container');
+        ingredientsContainer.removeChild(buttonElement.parentNode);
+    }
+</script>
