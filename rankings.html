@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="styles.css">
+        <title>Top Meals | Good Eats</title>
+    </head>
+    <body>
+        <nav>
+	    <label>Good Eats<label>
+	    <input type="button" value="Home" onclick="window.location.href='home.html'" />
+            <input type="button" value="Search" onclick="window.location.href='searchMeals.html'" />
+            <input type="button" value="Rankings" onclick="window.location.href='mealRankings.html'" />
+            <input type="button" value="Create" onclick="window.location.href='createRecipe.html'" />
+            <input type="button" value="Logout" onclick="logoutBtn()" />
+        </nav>
+        <h1 id="msg">Ranking Meals</h1>
+        <h2 id="msg2">
+    		<input type="button" id="loadTopRank" value="Load Top Rank" onclick="loadTopRank()" />
+	</h2>
+        
+        <div id="api_content"></div>
+    </body>
+</html>
+
+<script>
+    function getCookieValue(cookieName) {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(`${cookieName}=`)) {
+                return cookie.substring(cookieName.length + 1);
+            }
+        }
+    }
+
+    function RequestSessionValidation(ID) {
+        var request = new XMLHttpRequest();
+        request.open("POST", "sessionRequest.php", true);
+        request.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleSessionResponse(response);
+            }
+        };
+        request.send("type=validate_session&sessionID=" + ID);
+        console.log("Request Sent");
+    }
+    function HandleSessionResponse(response) {
+        var msgObject = document.getElementById("msg");
+        var msgObject2 = document.getElementById("msg2")
+        var responseObject = JSON.parse(response);
+        if (responseObject.returnCode == 1) {
+            console.log("Validation Successful.");
+        } else {
+            console.log("Invalid session found.");
+            location.href = "index.html";
+        }
+    }
+    
+    function SendLogoutRequest(ID){
+        var request = new XMLHttpRequest();
+        request.open("POST", "sessionRequest.php", true);
+        request.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleLogoutResponse(response);
+            }
+        };
+        request.send("type=logout&sessionID=" + ID);
+        console.log("Request Sent");
+    }
+
+    function HandleLogoutResponse(response) {
+        var msgObject = document.getElementById("msg");
+        var responseObject = JSON.parse(response);
+        if (responseObject.returnCode == 1) {
+            console.log("Logout Successful.");
+            location.href = "index.html"
+
+        } else {
+            console.log("Error logging out.");
+        }
+    }
+
+    function logoutBtn(){
+        SendLogoutRequest(getCookieValue("sessionID"));
+    }
+    
+	function loadTopRank() {
+	    RequestSessionValidation(getCookieValue("sessionID"));
+	    fetchTop();
+	}
+
+	function fetchTop() {
+	    var request = new XMLHttpRequest();
+	    request.open("POST", "top10Request.php", true);
+	    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	    request.onreadystatechange = function () {
+		if (this.readyState == 4 && this.status == 200) {
+		    var response = this.responseText;
+		    handleTop10Response(response);
+		}
+	    };
+	    request.send("type=top10");
+	    console.log("Top 10 Ranks Sent");
+	}
+
+	function handleTopResponse(response) {
+	    var msgObject = document.getElementById("api_content");
+	    msgObject.innerHTML = "";
+	    var responseObject = JSON.parse(response);
+	    if (responseObject.returnCode == 1) {
+		var top10Rank = responseObject.top10;
+		for (var i = 0; i < top10Rank.length; i++) {
+		    var item = top10Rank[i];
+		    var image = document.createElement("img");
+		    image.src = item.strMealThumb;
+		    var mealLink = document.createElement("a");
+		    mealLink.href = "#";
+		    mealLink.innerText = item.strMeal;
+		    mealLink.setAttribute("data-mealid", item.idMeal);
+		    mealLink.addEventListener("click", handleMealLinkClick);
+		    var origin = document.createElement("p");
+		    origin.textContent = item.strArea;
+		    var ItemDiv = document.createElement("div");
+		    ItemDiv.appendChild(image);
+		    ItemDiv.appendChild(mealLink);
+		    ItemDiv.appendChild(origin);
+		    msgObject.appendChild(ItemDiv);
+		}
+	    }
+	}
+
+    function handleMealLinkClick(event) {
+        event.preventDefault();
+        var mealId = event.target.getAttribute("data-mealid");
+        window.location.href = "mealOverview.html?mealId=" + mealId;
+    }
+
+    RequestSessionValidation(getCookieValue("sessionID"));
+</script>
