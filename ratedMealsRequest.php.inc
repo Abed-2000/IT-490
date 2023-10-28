@@ -21,8 +21,12 @@ public function __construct()
 public function ratereturn($accountID)
 {
 	$aid = $this->ratereturndb->real_escape_string($accountID);
-	$statement = "select * from ratings where accountID = '$aid'";
+	$statement = "SELECT * FROM ratings WHERE accountID = '$aid'";
 	$results = $this->ratereturndb->query($statement);
+	
+	while ($row = mysqli_fetch_array($results)) {
+		//return meal id and rating
+	}
 	
 	if($results->num_rows > 0){
 		echo "account".PHP_EOL;
@@ -38,4 +42,3 @@ public function ratereturn($accountID)
 		}
 	}
 }
-?>
