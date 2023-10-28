@@ -30,6 +30,9 @@ function doLogout($sessionID)
 {
   return destroy_session($sessionID);
 }
+function doRate($mealID, $accountID, $rating){
+	return rateRecipe($mealID, $accountID, $rating);
+}
 
 function requestProcessor($request)
 {
@@ -50,7 +53,7 @@ function requestProcessor($request)
     case "logout":
       return doLogout($request['sessionID']);
     case "rate":
-      return rateRecipe($request['mealID'], $request['accountID'], $request['rating']);
+      return doRate($request['mealID'], $request['accountID'], $request['rating']);
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }
