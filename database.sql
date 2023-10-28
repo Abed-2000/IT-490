@@ -11,13 +11,16 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS sessions (
     SessionID VARCHAR(255) PRIMARY KEY,
-    UserId INT REFERENCES users(UserId),
+    data TEXT,
     CreationTime TIMESTAMP NOT NULL,
     ExpiryTime TIMESTAMP NOT NULL
 );
 
 COMMIT;
 
-/*Creating Test User Account*/
+/*
+Creating Test User Account
 
 INSERT INTO `users`(UserId,Username,`Password`, Email) VALUES (1, 'testUser', '12345', 'testUser@test.com');
+*/
+

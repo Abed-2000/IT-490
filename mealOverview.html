@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Meal Overview</title>
+    </head>
+    <body>
+        <nav>
+            <input type="button" value="Home" onclick="window.location.href='home.html'" />
+            <input type="button" value="Logout" onclick="logoutBtn()" />
+        </nav>
+        <h1 id="meal_name"></h1>
+        <div id="meal_image"></div>
+        <div id="origin_category"></div>
+        <div id="meal_tags"></div>
+        <div id="meal_instructions"></div>
+        <div id="ingredients"></div>
+        <div id="video"></div>
+    </body>
+</html>
+
+<script>
+    function getCookieValue(cookieName) {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(`${cookieName}=`)) {
+                return cookie.substring(cookieName.length + 1);
+            }
+        }
+    }
+
+    function RequestSessionValidation(ID) {
+        var request = new XMLHttpRequest();
+        request.open("POST", "sessionRequest.php", true);
+        request.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleSessionResponse(response);
+            }
+        };
+        request.send("type=validate_session&sessionID=" + ID);
+        console.log("Request Sent");
+    }
+    function HandleSessionResponse(response) {
+        var msgObject = document.getElementById("msg");
+        var msgObject2 = document.getElementById("msg2")
+        var responseObject = JSON.parse(response);
+        if (responseObject.returnCode == 1) {
+            console.log("Validation Successful.");
+        } else {
+            console.log("Invalid session found.");
+            location.href = "index.html";
+        }
+    }
+    
+    function SendLogoutRequest(ID){
+        var request = new XMLHttpRequest();
+        request.open("POST", "sessionRequest.php", true);
+        request.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleLogoutResponse(response);
+            }
+        };
+        request.send("type=logout&sessionID=" + ID);
+        console.log("Request Sent");
+    }
+
+    function HandleLogoutResponse(response) {
+        var msgObject = document.getElementById("msg");
+        var responseObject = JSON.parse(response);
+        if (responseObject.returnCode == 1) {
+            console.log("Logout Successful.");
+            location.href = "index.html"
+
+        } else {
+            console.log("Error logging out.");
+        }
+    }
+
+    function logoutBtn(){
+        SendLogoutRequest(getCookieValue("sessionID"));
+    }
+
+    function mealDetailRequest(query) {
+        var request = new XMLHttpRequest();
+        request.open("POST", "searchRequest.php", true);
+        request.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleMealResponse(response);
+            }
+        };
+        request.send("type=mealDetails&query=" + query);
+        console.log("Meal Details Request Sent");
+    }
+    function HandleMealResponse(response) {
+        var meal_name = document.getElementById("meal_name");
+        var meal_image = document.getElementById("meal_image");
+        var origin_category = document.getElementById("origin_category");
+        var meal_tags = document.getElementById("meal_tags");
+        var meal_instructions = document.getElementById("meal_instructions");
+        var ingredients = document.getElementById("ingredients");
+        var video = document.getElementById("video");
+        
+        var responseObject = JSON.parse(response);
+        if (responseObject.returnCode == 1) {
+            var messageArray = responseObject.message;
+            
+            var name = document.createElement("h1");
+            name.innerText = messageArray.strMeal;
+            var image = document.createElement("img");
+            image.src = messageArray.strMealThumb;
+            var originCategory = document.createElement('h3');
+            originCategory.innerText = messageArray.strArea + "/" + messageArray.strCategory;
+            var tags = document.createElement("p");
+            tags.innerText = messageArray.strTags;
+            var steps = document.createElement("p");
+            steps.innerText = messageArray.strInstructions;
+            var videoEmbed = document.createElement("iframe");
+            videoEmbed.width = "1280";
+            videoEmbed.height = "720";
+            videoEmbed.src = messageArray.strYoutube;
+            videoEmbed.allowfullscreen = true;
+            var ingredientsList = document.createElement("ul");
+            for (var i = 1; i <= 20; i++) {
+                var measurement = messageArray["strMeasure" + i];
+                var ingredient = messageArray["strIngredient" + i];
+                if (measurement.trim() !== "" && ingredient.trim() !== "") {
+                    var listItem = document.createElement("li");
+                    listItem.innerText = measurement + " " + ingredient;
+                    ingredientsList.appendChild(listItem);
+                } else {
+                    break;
+                }
+            }
+            meal_name.appendChild(name);
+            meal_image.appendChild(image);
+            origin_category.appendChild(originCategory);
+            meal_tags.appendChild(tags);
+            meal_instructions.appendChild(steps);
+            ingredients.appendChild(ingredientsList);
+            video.appendChild(videoEmbed);
+        }
+    }
+
+    RequestSessionValidation(getCookieValue("sessionID"));
+
+    function getMealIdFromQuery() {
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            return urlParams.get("mealId");
+        }
+
+    window.addEventListener('load', function () {
+            const mealId = getMealIdFromQuery();
+            if (mealId) {
+                mealDetailRequest(mealId);
+            } else {
+                window.location.href = "home.html";
+            }
+        });
+
+</script>
