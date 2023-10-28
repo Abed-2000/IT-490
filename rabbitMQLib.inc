@@ -1,8 +1,6 @@
 <?php
 
 require_once('get_host_info.inc');
-require('log_maker.php');
-
 class rabbitMQServer
 {
 	private $machine = "";

@@ -7,11 +7,11 @@ private $logindb;
 
 public function __construct()
 {
-	$this->ratereturndb = new mysqli("1270.1","testUser","12345","IT490");
+	$this->ratereturndb = new mysqli("127.0.0.1","testUser","12345","IT490");
 
 	if ($this->ratereturndb->connect_errno != 0)
 	{
-		echo "Error connecting to database: ".$this->ratedb->connect_error.PHP_EOL;
+		echo "Error connecting to database: ".$this->ratereturndb->connect_error.PHP_EOL;
 		exit(1);
 	}
 	echo "correctly connected to database".PHP_EOL;
@@ -25,7 +25,7 @@ public function ratereturn($accountID)
 	$results = $this->ratereturndb->query($statement);
 	
 	while ($row = mysqli_fetch_array($results)) {
-		//return meal id and rating
+		//use json to send the data back to html. from there use meal id to get the meal id pic and link. put those 3 with the rating on the page
 	}
 	
 	if($results->num_rows > 0){
@@ -42,3 +42,5 @@ public function ratereturn($accountID)
 		}
 	}
 }
+
+
