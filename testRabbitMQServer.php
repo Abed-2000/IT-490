@@ -5,7 +5,6 @@ require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 require_once('login.php.inc');
 include_once('sessions_handler.php');
-require_once('rateRequest.php.inc');
 
 function doLogin($username,$password)
 {
