@@ -9,7 +9,6 @@
 	    <label>Good Eats<label>
 	    <input type="button" value="Home" onclick="window.location.href='home.html'" />
             <input type="button" value="Search" onclick="window.location.href='searchMeals.html'" />
-            <input type="button" value="Rankings" onclick="window.location.href='mealRankings.html'" />
             <input type="button" value="Create" onclick="window.location.href='createRecipe.html'" />
             <input type="button" value="Logout" onclick="logoutBtn()" />
         </nav>
@@ -104,7 +103,7 @@
 //rated recipes
 
 //gets meal id from user input CHANGE TO FROM DB
-       function getRecipes(){
+    function getRecipes(){
         var searchKeywords = document.getElementById("mealKeyword").value;
         RequestSessionValidation(getCookieValue("sessionID"));
         searchRequest(searchKeywords);

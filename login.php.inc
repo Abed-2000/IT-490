@@ -64,7 +64,7 @@ public function createUser($username, $password, $email)
 			}
 		}
 	}
-}
+
 
 public function rate($mealID, $accountID, $rating)
 {

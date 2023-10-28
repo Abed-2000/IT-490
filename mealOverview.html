@@ -198,7 +198,6 @@
         
         
     function SendRatingRequest(mealID, accountID, rating) {
-    	getCookieValue("sessionID");
         var request = new XMLHttpRequest();
         request.open("POST", "ratingRequest.php", true);
         request.setRequestHeader(
@@ -209,7 +208,7 @@
             if (this.readyState == 4 && this.status == 200) {
                 console.log(this);
                 var response = this.responseText;
-                HandleRegistrationResponse(response);
+                HandleRatingResponse(response);
             }
         };
         request.send(
@@ -224,19 +223,22 @@
     }
 
     function SendRatingData() {
-        var mealID = getCookieValue("mealID");
-        var accountID = getCookieValue("userID");
+        var mealID = getMealIdFromQuery();;
+        var accountID = getCookieValue("username");
         var rating = document.getElementById("rating").value;
+        SendRatingRequest(mealID, accountID, rating);
     }
-    function HandleRegistrationResponse(response) {
+
+    function HandleRatingResponse(response) {
         var responseObject = JSON.parse(response);
         if (responseObject.returnCode == 1) {
-            console.log("Recipe Rated Successfully.");
+            window.alert("Recipe Rated Successfully.");
 	    var complete = document.createElement("p");
             complete.innerText = "Rating saved.";
-            complete.appendChild(complete);
+            document.getElementById("completed").appendChild(complete);
         } else {
             console.log(responseObject);
+            window.alert("Error while trying to rate meal.")
             console.log("Recipe Rating Failed: " + responseObject.message);
         }
     }
