@@ -275,10 +275,10 @@ document.querySelector('form').addEventListener('submit', function (event) {
 
     this.reset();
     console.log(formDataArray);
-    return formDataArray();
+    RequestSaveMeal(formDataArray);
 });
 
-function RequestSaveMeal() {
+function RequestSaveMeal(formData) {
         var request = new XMLHttpRequest();
         request.open("POST", "searchRequest.php", true);
         request.setRequestHeader(
@@ -292,21 +292,13 @@ function RequestSaveMeal() {
                 HandleSaveMeal(response);
             }
         };
-        request.send("type=save_recipe&query=" + form);
+        request.send("type=save_recipe&query=" + formData);
         console.log("Request Sent");
     }
-    function HandlePopulateArea(response) {
+    function HandleSaveMeal(response) {
     var responseObject = JSON.parse(response);
     if (responseObject.returnCode == 1) {
-        var areaSelect = document.querySelector('select[name="strArea"]');
-        areaSelect.innerHTML = '';
-
-        responseObject.message.forEach(function (area) {
-            var option = document.createElement('option');
-            option.value = area.strArea;
-            option.textContent = area.strArea;
-            areaSelect.appendChild(option);
-        });
+        window.alert("Sucessfully Created Meal.");
     } else {
         console.error("Error while populating area.");
     }
