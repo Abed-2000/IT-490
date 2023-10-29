@@ -1,20 +1,322 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Search Meals</title>
-    </head>
+        <link rel="stylesheet" href="styles.css">
+        <title>New Recipe | Good Eats</title>
+</head>
     <body>
         <nav>
-            <input type="button" value="Home" onclick="window.location.href='home.html'" />
-            <input type="button" value="Search" onclick="window.location.href='searchMeals.html'" />
-            <input type="button" value="Logout" onclick="logoutBtn()" />
-
+            <label>Good Eats<label>
+                <input type="button" value="Home" onclick="window.location.href='home.html'" />
+                <input type="button" value="Search" onclick="window.location.href='searchMeals.html'" />
+                <input type="button" value="Rankings" onclick="window.location.href='mealRankings.html'" />
+                <input type="button" value="Logout" onclick="logoutBtn()" />
         </nav>
-        <h1 id="msg">Create New Reciepe</h1>
-        <h2 id="msg2">
-            <input type="text" id="mealKeyword" autofocus required>
-            <input type="button" id="excuteSearch" value="Go" onclick="goButton()"/>
-        </h2>
-        <div id="api_content"></div>
+        <body>
+            <h1>Create a New Meal Recipe</h1>
+        
+            <form action="#" method="POST">
+                <label for="strMeal">Recipe Name:</label>
+                <input type="text" name="strMeal" required><br><br>
+                
+                <label for="strCategory">Category:</label>
+                <select name="strCategory" required>
+                    <option value="">Select a Category</option>
+                </select><br><br>
+
+                <label for="strArea">Area:</label>
+                <select name="strArea" required>
+                    <option value="">Select an Area</option>
+                </select><br><br>
+        
+                <label>Ingredients:</label>
+                <div id="ingredients-container">
+                    <div class="ingredient-row">
+                        <input type="text" name="strIngredients[]" placeholder="Ingredient Name">
+                        <input type="text" name="strMeasure[]" placeholder="Measurement">
+                    </div>
+                </div>
+                <button type="button" onclick="addIngredient()">Add Ingredient</button><br><br>
+                
+                <label for="strInstructions">Instructions:</label>
+                <textarea name="strInstructions" rows="4" required></textarea><br><br>
+                
+                <label for="strTags">Tags (Comma-separated):</label>
+                <input type="text" name="strTags"><br><br>
+                
+                <label for="strMealThumb">Thumbnail Image URL:</label>
+                <input type="text" name="strMealThumb"><br><br>
+        
+                <label for="strYoutube">Recipe Video URL:</label>
+                <input type="text" name="strYoutube"><br><br>
+                
+                <label for="created_by">Created By:</label>
+                <input type="text" name="created_by" readonly><br><br>
+
+                <label for="datePublished">Publication Date:</label>
+                <input type="date" name="datePublished" readonly><br><br>
+        
+                <input type="submit" value="Create Recipe">
+            </form>
     </body>
 </html>
+
+<script>
+
+function setCurrentDate() {
+        const dateField = document.querySelector('input[name="datePublished"]');
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0'); // Adding 1 because months are zero-based
+        const day = String(now.getDate()).padStart(2, '0');
+
+        const formattedDate = `${year}-${month}-${day}`;
+        dateField.value = formattedDate;
+    }
+
+function setCreatorName(){
+    const creatorField = document.querySelector('input[name="created_by"]');
+    const name = getCookieValue("username");
+    creatorField.value = name;
+}
+
+
+    function addIngredient() {
+        const ingredientsContainer = document.querySelector('#ingredients-container');
+        const ingredientRows = ingredientsContainer.querySelectorAll('.ingredient-row');
+
+        if (ingredientRows.length < 20) {
+            const newIngredientRow = document.createElement('div');
+            newIngredientRow.classList.add('ingredient-row');
+            newIngredientRow.innerHTML = `
+                <input type="text" name="strIngredients[]" placeholder="Ingredient Name">
+                <input type="text" name="strMeasure[]" placeholder="Measurement">
+                <button type="button" onclick="removeIngredient(this)">Remove</button>
+            `;
+            ingredientsContainer.appendChild(newIngredientRow);
+        } else {
+            alert('You can add up to 20 ingredients.');
+        }
+    }
+    
+    function removeIngredient(buttonElement) {
+        const ingredientsContainer = document.querySelector('#ingredients-container');
+        ingredientsContainer.removeChild(buttonElement.parentNode);
+    }
+
+    function getCookieValue(cookieName) {
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(`${cookieName}=`)) {
+                    return cookie.substring(cookieName.length + 1);
+                }
+            }
+        }
+    
+        function RequestSessionValidation(ID) {
+            var request = new XMLHttpRequest();
+            request.open("POST", "sessionRequest.php", true);
+            request.setRequestHeader(
+                "Content-Type",
+                "application/x-www-form-urlencoded"
+            );
+            request.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log(this);
+                    var response = this.responseText;
+                    HandleSessionResponse(response);
+                }
+            };
+            request.send("type=validate_session&sessionID=" + ID);
+            console.log("Request Sent");
+        }
+        function HandleSessionResponse(response) {
+            var msgObject = document.getElementById("msg");
+            var responseObject = JSON.parse(response);
+            if (responseObject.returnCode == 1) {
+                console.log("Validation Successful.");
+                msgObject.innerHTML = "Welcome " + getCookieValue("username");
+            } else {
+                console.log("Invalid session found.");
+                location.href = "index.html";
+            }
+        }
+        function SendLogoutRequest(ID){
+            var request = new XMLHttpRequest();
+            request.open("POST", "sessionRequest.php", true);
+            request.setRequestHeader(
+                "Content-Type",
+                "application/x-www-form-urlencoded"
+            );
+            request.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log(this);
+                    var response = this.responseText;
+                    HandleLogoutResponse(response);
+                }
+            };
+            request.send("type=logout&sessionID=" + ID);
+            console.log("Request Sent");
+        }
+    
+        function HandleLogoutResponse(response) {
+            var msgObject = document.getElementById("msg");
+            var responseObject = JSON.parse(response);
+            if (responseObject.returnCode == 1) {
+                console.log("Logout Successful.");
+                location.href = "index.html"
+    
+            } else {
+                location.href = "index.html"
+                console.log("Error logging out.");
+            }
+        }
+    
+        function logoutBtn(){
+            SendLogoutRequest(getCookieValue("sessionID"));
+        }
+        
+        function RequestPopulateCategory() {
+        var request = new XMLHttpRequest();
+        request.open("POST", "searchRequest.php", true);
+        request.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandlePopulateCategory(response);
+            }
+        };
+        request.send("type=populateFields&query=category");
+        console.log("Request Sent");
+    }
+    function HandlePopulateCategory(response) {
+        var responseObject = JSON.parse(response);
+        if (responseObject.returnCode == 1) {
+            var categorySelect = document.querySelector('select[name="strCategory"]');
+            categorySelect.innerHTML = '';
+
+             responseObject.categories.forEach(function (category) {
+                var option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categorySelect.appendChild(option);
+             });
+    } else {
+            console.error("Error while populating categories.");
+    }
+}
+    
+function RequestPopulateArea() {
+        var request = new XMLHttpRequest();
+        request.open("POST", "searchRequest.php", true);
+        request.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandlePopulateArea(response);
+            }
+        };
+        request.send("type=populateFields&query=area");
+        console.log("Request Sent");
+    }
+    function HandlePopulateArea(response) {
+    var responseObject = JSON.parse(response);
+    if (responseObject.returnCode == 1) {
+        var areaSelect = document.querySelector('select[name="strArea"]');
+        areaSelect.innerHTML = '';
+
+        responseObject.message.forEach(function (area) {
+            var option = document.createElement('option');
+            option.value = area.strArea;
+            option.textContent = area.strArea;
+            areaSelect.appendChild(option);
+        });
+    } else {
+        console.error("Error while populating area.");
+    }
+}
+
+document.querySelector('form').addEventListener('submit', function (event) {
+    event.preventDefault();
+    const formData = {
+        strMeal: this.querySelector('input[name="strMeal"]').value,
+        strCategory: this.querySelector('select[name="strCategory"]').value,
+        strArea: this.querySelector('select[name="strArea"]').value,
+        strIngredients: [],
+        strMeasure: [],
+        strInstructions: this.querySelector('textarea[name="strInstructions"]').value,
+        strTags: this.querySelector('input[name="strTags"]').value,
+        strMealThumb: this.querySelector('input[name="strMealThumb"]').value,
+        strYoutube: this.querySelector('input[name="strYoutube"]').value,
+        created_by: this.querySelector('input[name="created_by"]').value,
+        datePublished: this.querySelector('input[name="datePublished"]').value,
+    };
+
+    const ingredientRows = this.querySelectorAll('.ingredient-row');
+    ingredientRows.forEach((row) => {
+        const ingredientName = row.querySelector('input[name="strIngredients[]"]').value;
+        const measurement = row.querySelector('input[name="strMeasure[]"]').value;
+        if (ingredientName && measurement) {
+            formData.strIngredients.push(ingredientName);
+            formData.strMeasure.push(measurement);
+        }
+    });
+
+    formDataArray.push(formData);
+
+    this.reset();
+    console.log(formDataArray);
+    return formDataArray();
+});
+
+function RequestSaveMeal() {
+        var request = new XMLHttpRequest();
+        request.open("POST", "searchRequest.php", true);
+        request.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleSaveMeal(response);
+            }
+        };
+        request.send("type=save_recipe&query=" + form);
+        console.log("Request Sent");
+    }
+    function HandlePopulateArea(response) {
+    var responseObject = JSON.parse(response);
+    if (responseObject.returnCode == 1) {
+        var areaSelect = document.querySelector('select[name="strArea"]');
+        areaSelect.innerHTML = '';
+
+        responseObject.message.forEach(function (area) {
+            var option = document.createElement('option');
+            option.value = area.strArea;
+            option.textContent = area.strArea;
+            areaSelect.appendChild(option);
+        });
+    } else {
+        console.error("Error while populating area.");
+    }
+}
+
+    RequestSessionValidation(getCookieValue("sessionID"));
+    RequestPopulateArea();
+    RequestPopulateCategory();
+    setCurrentDate();
+    setCreatorName();
+    
+
+</script>

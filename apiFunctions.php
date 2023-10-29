@@ -55,5 +55,40 @@ function getMealDetails($query){
     }
 }
 
+function populateFields($query){
+    if($query == 'category'){
+        $apiEndpoint =  'www.themealdb.com/api/json/v1/1/list.php?c=list';
+        $ch = curl_init($apiEndpoint);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+
+        if ($response === false) {
+            die('cURL Error: ' . curl_error($ch));
+        }
+
+        curl_close($ch);
+
+        $data = json_decode($response, true);
+        return array("returnCode" => 1, "message" => $data);
+
+    }elseif($query == 'area'){
+        $apiEndpoint = ' www.themealdb.com/api/json/v1/1/list.php?a=list';
+        $ch = curl_init($apiEndpoint);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+
+        if ($response === false) {
+            die('cURL Error: ' . curl_error($ch));
+        }
+
+        curl_close($ch);
+
+        $data = json_decode($response, true);
+        return array("returnCode" => 1, "message" => $data);
+
+    }else{
+        return array("returnCode" => 0, "message" => "Error parsing query parameter.");
+    }
+}
 
 ?>
