@@ -15,4 +15,5 @@ if ($_POST){
         echo json_encode($response, JSON_UNESCAPED_SLASHES);
     }
 }
+
 ?>
