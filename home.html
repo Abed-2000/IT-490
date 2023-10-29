@@ -1,91 +1,206 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Homepage</title>
+            <link rel="stylesheet" href="styles.css">
+            <title>Home | Good Eats</title>
     </head>
     <body>
         <nav>
+            <label>Good Eats<label>
+
             <input type="button" value="Search" onclick="window.location.href='searchMeals.html'" />
             <input type="button" value="New Reciepe" onclick="window.location.href='createRecipe.html'" />
+            <input type="button" value="Rankings" onclick="window.location.href='mealRankings.html'" />
             <input type="button" value="Logout" onclick="logoutBtn()" />
         </nav>
         <h1 id="msg"></h1>
+        <h3>Rated Recipes:</h3>
+        <div onload="getRecipes()" id="api_content"></div>
     </body>
 </html>
+
 <script>
-    function getCookieValue(cookieName) {
-        const cookies = document.cookie.split(";");
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.startsWith(`${cookieName}=`)) {
-                return cookie.substring(cookieName.length + 1);
-            }
-        }
-    }
 
-    function RequestSessionValidation(ID) {
-        var request = new XMLHttpRequest();
-        request.open("POST", "sessionRequest.php", true);
-        request.setRequestHeader(
-            "Content-Type",
-            "application/x-www-form-urlencoded"
-        );
-        request.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-                console.log(this);
-                var response = this.responseText;
-                HandleSessionResponse(response);
+    //cookies
+        function getCookieValue(cookieName) {
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(`${cookieName}=`)) {
+                    return cookie.substring(cookieName.length + 1);
+                }
             }
-        };
-        request.send("type=validate_session&sessionID=" + ID);
-        console.log("Request Sent");
-    }
-    function HandleSessionResponse(response) {
-        var msgObject = document.getElementById("msg");
-        var responseObject = JSON.parse(response);
-        if (responseObject.returnCode == 1) {
-            console.log("Validation Successful.");
-            msgObject.innerHTML = "Welcome " + getCookieValue("username");
-        } else {
-            console.log("Invalid session found.");
-            location.href = "index.html";
         }
-    }
     
-    function SendLogoutRequest(ID){
-        var request = new XMLHttpRequest();
-        request.open("POST", "sessionRequest.php", true);
-        request.setRequestHeader(
-            "Content-Type",
-            "application/x-www-form-urlencoded"
-        );
-        request.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-                console.log(this);
-                var response = this.responseText;
-                HandleLogoutResponse(response);
-            }
-        };
-        request.send("type=logout&sessionID=" + ID);
-        console.log("Request Sent");
-    }
-
-    function HandleLogoutResponse(response) {
-        var msgObject = document.getElementById("msg");
-        var responseObject = JSON.parse(response);
-        if (responseObject.returnCode == 1) {
-            console.log("Logout Successful.");
-            location.href = "index.html"
-
-        } else {
-            console.log("Error logging out.");
+    //sessions
+        function RequestSessionValidation(ID) {
+            var request = new XMLHttpRequest();
+            request.open("POST", "sessionRequest.php", true);
+            request.setRequestHeader(
+                "Content-Type",
+                "application/x-www-form-urlencoded"
+            );
+            request.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log(this);
+                    var response = this.responseText;
+                    HandleSessionResponse(response);
+                }
+            };
+            request.send("type=validate_session&sessionID=" + ID);
+            console.log("Request Sent");
         }
-    }
-
-    function logoutBtn(){
-        SendLogoutRequest(getCookieValue("sessionID"));
-    }
+        function HandleSessionResponse(response) {
+            var msgObject = document.getElementById("msg");
+            var responseObject = JSON.parse(response);
+            if (responseObject.returnCode == 1) {
+                console.log("Validation Successful.");
+                msgObject.innerHTML = "Welcome " + getCookieValue("username");
+            } else {
+                console.log("Invalid session found.");
+                location.href = "index.html";
+            }
+        }
+        
+    //logout
+        function SendLogoutRequest(ID){
+            var request = new XMLHttpRequest();
+            request.open("POST", "sessionRequest.php", true);
+            request.setRequestHeader(
+                "Content-Type",
+                "application/x-www-form-urlencoded"
+            );
+            request.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log(this);
+                    var response = this.responseText;
+                    HandleLogoutResponse(response);
+                }
+            };
+            request.send("type=logout&sessionID=" + ID);
+            console.log("Request Sent");
+        }
     
-    RequestSessionValidation(getCookieValue("sessionID"));
-
-</script>
+        function HandleLogoutResponse(response) {
+            var msgObject = document.getElementById("msg");
+            var responseObject = JSON.parse(response);
+            if (responseObject.returnCode == 1) {
+                console.log("Logout Successful.");
+                location.href = "index.html"
+    
+            } else {
+                console.log("Error logging out.");
+            }
+        }
+    
+        function logoutBtn(){
+            SendLogoutRequest(getCookieValue("sessionID"));
+        }
+    
+    //rated recipes
+    
+    //gets meal id from user input CHANGE TO FROM DB
+        function getRecipes(){
+            var searchKeywords = document.getElementById("mealKeyword").value;
+            RequestSessionValidation(getCookieValue("sessionID"));
+            searchRequest(searchKeywords);
+        }
+    //sends request of query to rabbit
+        function searchRequest(query) {
+            var request = new XMLHttpRequest();
+            request.open("POST", "searchRequest.php", true);
+            request.setRequestHeader(
+                "Content-Type",
+                "application/x-www-form-urlencoded"
+            );
+            request.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log(this);
+                    var response = this.responseText;
+                    HandleSearchResponse(response);
+                }
+            };
+            request.send("type=searchMeals&query=" + query);
+            console.log("Search Request Sent");
+        }
+    //returns meal date for meal id, places into div 
+        function HandleSearchResponse(response) {
+            var msgObject = document.getElementById("api_content");
+            msgObject.innerHTML = "";
+            var responseObject = JSON.parse(response);
+            if (responseObject.returnCode == 1) {
+                var messageArray = responseObject.message;
+                for (var i=0; i < messageArray.length; i++){
+                    var item = messageArray[i];
+                    var image = document.createElement("img");
+                    image.src = item.strMealThumb;
+                    var mealLink = document.createElement("a");
+                    mealLink.href = "#";
+                    mealLink.innerText = item.strMeal;
+                    mealLink.setAttribute("data-mealid", item.idMeal);
+                    mealLink.addEventListener("click", handleMealLinkClick);
+                    var origin = document.createElement("p");
+                    origin.textContent = item.strArea;
+                    var ItemDiv = document.createElement("div");
+                    ItemDiv.appendChild(image);
+                    ItemDiv.appendChild(mealLink);
+                    ItemDiv.appendChild(origin);
+                    msgObject.appendChild(ItemDiv);
+                }
+            }
+        }
+    //redirects to meal page when meal name clicked
+        function handleMealLinkClick(event) {
+            event.preventDefault();
+            var mealId = event.target.getAttribute("data-mealid");
+            window.location.href = "mealOverview.html?mealId=" + mealId;
+        }
+    
+        RequestSessionValidation(getCookieValue("sessionID"));
+        
+        
+        
+        
+            function SendRatedMealsRequest(accountID) {
+            getCookieValue("sessionID");
+            var request = new XMLHttpRequest();
+            request.open("POST", "ratedMealsRequest.php", true);
+            request.setRequestHeader(
+                "Content-Type",
+                "application/x-www-form-urlencoded"
+            );
+            request.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log(this);
+                    var response = this.responseText;
+                    HandleRegistrationResponse(response);
+                }
+            };
+            request.send(
+                "type=ratereturn&accountID=" +
+                    accountID +
+    
+            );
+            console.log("Request Sent");
+        }
+    
+        function SendRatingData() {
+            var mealID = getCookieValue("mealID");
+            var accountID = getCookieValue("userID");
+            var rating = document.getElementById("rating").value;
+        }
+        function HandleRegistrationResponse(response) {
+            var responseObject = JSON.parse(response);
+            if (responseObject.returnCode == 1) {
+                console.log("Recipe Rated Successfully.");
+            var complete = document.createElement("p");
+                complete.innerText = "Rating saved.";
+                complete.appendChild(complete);
+            } else {
+                console.log(responseObject);
+                console.log("Recipe Rating Failed: " + responseObject.message);
+            }
+        }
+    
+    
+    </script>

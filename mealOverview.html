@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Meal Overview</title>
+        <link rel="stylesheet" href="styles.css">
+        <title>Meal Overview | Good Eats</title>
     </head>
     <body>
         <nav>
+            <label>Good Eats<label>
             <input type="button" value="Home" onclick="window.location.href='home.html'" />
             <input type="button" value="New Reciepe" onclick="window.location.href='createRecipe.html'" />
+            <input type="button" value="Rankings" onclick="window.location.href='mealRankings.html'" />
             <input type="button" value="Search" onclick="window.location.href='searchMeals.html'" />
             <input type="button" value="Logout" onclick="logoutBtn()" />
         </nav>
@@ -17,6 +20,17 @@
         <div id="meal_instructions"></div>
         <div id="ingredients"></div>
         <div id="video"></div>
+        <form action="rateRequest.php" method="post">
+        	<label for="rating">Rate this Recipe:</label>
+        <select name="rating" id="rating">
+        	<option value=1>1</option>
+        	<option value=2>2</option>
+        	<option value=3>3</option>
+        	<option value=4>4</option>
+        	<option value=5>5</option>
+        </select>
+         <input type="button" value="Submit" onclick="SendRatingData()" />
+        </form>
     </body>
 </html>
 
@@ -177,5 +191,50 @@
                 window.location.href = "home.html";
             }
         });
+     
+        function SendRatingRequest(mealID, accountID, rating) {
+            var request = new XMLHttpRequest();
+            request.open("POST", "ratingRequest.php", true);
+            request.setRequestHeader(
+                "Content-Type",
+                "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleRatingResponse(response);
+            }
+        };
+        request.send(
+            "type=rate&accountID=" +
+                accountID +
+                "&mealID=" +
+                mealID +
+                "&rating=" +
+                rating
+        );
+        console.log("Request Sent");
+    }
 
+    function SendRatingData() {
+        var mealID = getMealIdFromQuery();;
+        var accountID = getCookieValue("username");
+        var rating = document.getElementById("rating").value;
+        SendRatingRequest(mealID, accountID, rating);
+    }
+
+    function HandleRatingResponse(response) {
+        var responseObject = JSON.parse(response);
+        if (responseObject.returnCode == 1) {
+            window.alert("Recipe Rated Successfully.");
+	    var complete = document.createElement("p");
+            complete.innerText = "Rating saved.";
+            document.getElementById("completed").appendChild(complete);
+        } else {
+            console.log(responseObject);
+            window.alert("Error while trying to rate meal.")
+            console.log("Recipe Rating Failed: " + responseObject.message);
+        }
+    }
 </script>

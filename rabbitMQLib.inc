@@ -1,7 +1,6 @@
 <?php
 
 require_once('get_host_info.inc');
-
 class rabbitMQServer
 {
 	private $machine = "";
@@ -83,7 +82,7 @@ class rabbitMQServer
 		catch(Exception $e)
 		{
 			// ampq throws exception if get fails...
-			echo "error: rabbitMQServer: process_message: exception caught: ".$e;
+			echo("error: rabbitMQServer: process_message: exception caught: ".$e);
 		}
 		// message does not require a response, send ack immediately
 		$body = $msg->getBody();
@@ -243,6 +242,32 @@ class rabbitMQClient
 	function publish($message)
 	{
 		$json_message = json_encode($message);
+		try
+		{
+			$params = array();
+			$params['host'] = $this->BROKER_HOST;
+			$params['port'] = $this->BROKER_PORT;
+			$params['login'] = $this->USER;
+			$params['password'] = $this->PASSWORD;
+			$params['vhost'] = $this->VHOST;
+			$conn = new AMQPConnection($params);
+			$conn->connect();
+			$channel = new AMQPChannel($conn);
+			$exchange = new AMQPExchange($channel);
+			$exchange->setName($this->exchange);
+			$exchange->setType($this->exchange_type);
+			$this->conn_queue = new AMQPQueue($channel);
+			$this->conn_queue->setName($this->queue);
+			$this->conn_queue->bind($exchange->getName(),$this->routing_key);
+			return $exchange->publish($json_message,$this->routing_key);
+		}
+		catch(Exception $e)
+		{
+			die("failed to send message to exchange: ". $e->getMessage()."\n");
+		}
+	}
+	function subscribe($message)
+	{
 		try
 		{
 			$params = array();

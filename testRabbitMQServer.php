@@ -30,6 +30,9 @@ function doLogout($sessionID)
 {
   return destroy_session($sessionID);
 }
+function doRate($mealID, $accountID, $rating){
+	return rateRecipe($mealID, $accountID, $rating);
+}
 
 function requestProcessor($request)
 {
@@ -49,6 +52,8 @@ function requestProcessor($request)
       return doCreateUser($request['username'], $request['password'], $request['email']);
     case "logout":
       return doLogout($request['sessionID']);
+    case "rate":
+      return doRate($request['mealID'], $request['accountID'], $request['rating']);
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }
@@ -58,4 +63,3 @@ $server = new rabbitMQServer("testRabbitMQ.ini","testServer");
 $server->process_requests('requestProcessor');
 exit();
 ?>
-
