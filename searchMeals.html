@@ -2,7 +2,7 @@
 <html>
     <head>
         <link rel="stylesheet" href="styles.css">
-        <title>Meal Overview | Good Eats</title>
+        <title>Search Meals | Good Eats</title>
     </head>
     <body>
         <nav>
@@ -10,27 +10,14 @@
             <input type="button" value="Home" onclick="window.location.href='home.html'" />
             <input type="button" value="New Reciepe" onclick="window.location.href='createRecipe.html'" />
             <input type="button" value="Rankings" onclick="window.location.href='mealRankings.html'" />
-            <input type="button" value="Search" onclick="window.location.href='searchMeals.html'" />
             <input type="button" value="Logout" onclick="logoutBtn()" />
         </nav>
-        <h1 id="meal_name"></h1>
-        <div id="meal_image"></div>
-        <div id="origin_category"></div>
-        <div id="meal_tags"></div>
-        <div id="meal_instructions"></div>
-        <div id="ingredients"></div>
-        <div id="video"></div>
-        <form action="rateRequest.php" method="post">
-        	<label for="rating">Rate this Recipe:</label>
-        <select name="rating" id="rating">
-        	<option value=1>1</option>
-        	<option value=2>2</option>
-        	<option value=3>3</option>
-        	<option value=4>4</option>
-        	<option value=5>5</option>
-        </select>
-         <input type="button" value="Submit" onclick="SendRatingData()" />
-        </form>
+        <h1 id="msg">Search Meals</h1>
+        <h2 id="msg2">
+            <input type="text" id="mealKeyword" autofocus required>
+            <input type="button" id="excuteSearch" value="Go" onclick="goButton()"/>
+        </h2>
+        <div id="api_content"></div>
     </body>
 </html>
 
@@ -107,8 +94,13 @@
     function logoutBtn(){
         SendLogoutRequest(getCookieValue("sessionID"));
     }
-
-    function mealDetailRequest(query) {
+    
+    function goButton(){
+        var searchKeywords = document.getElementById("mealKeyword").value;
+        RequestSessionValidation(getCookieValue("sessionID"));
+        searchRequest(searchKeywords);
+    }
+    function searchRequest(query) {
         var request = new XMLHttpRequest();
         request.open("POST", "searchRequest.php", true);
         request.setRequestHeader(
@@ -119,122 +111,43 @@
             if (this.readyState == 4 && this.status == 200) {
                 console.log(this);
                 var response = this.responseText;
-                HandleMealResponse(response);
+                HandleSearchResponse(response);
             }
         };
-        request.send("type=mealDetails&query=" + query);
-        console.log("Meal Details Request Sent");
+        request.send("type=searchMeals&query=" + query);
+        console.log("Search Request Sent");
     }
-    function HandleMealResponse(response) {
-        var meal_name = document.getElementById("meal_name");
-        var meal_image = document.getElementById("meal_image");
-        var origin_category = document.getElementById("origin_category");
-        var meal_tags = document.getElementById("meal_tags");
-        var meal_instructions = document.getElementById("meal_instructions");
-        var ingredients = document.getElementById("ingredients");
-        var video = document.getElementById("video");
-        
+    function HandleSearchResponse(response) {
+        var msgObject = document.getElementById("api_content");
+        msgObject.innerHTML = "";
         var responseObject = JSON.parse(response);
         if (responseObject.returnCode == 1) {
             var messageArray = responseObject.message;
-            
-            var name = document.createElement("h1");
-            name.innerText = messageArray.strMeal;
-            var image = document.createElement("img");
-            image.src = messageArray.strMealThumb;
-            var originCategory = document.createElement('h3');
-            originCategory.innerText = messageArray.strArea + "/" + messageArray.strCategory;
-            var tags = document.createElement("p");
-            tags.innerText = messageArray.strTags;
-            var steps = document.createElement("p");
-            steps.innerText = messageArray.strInstructions;
-            var videoEmbed = document.createElement("iframe");
-            videoEmbed.width = "1280";
-            videoEmbed.height = "720";
-            videoEmbed.src = messageArray.strYoutube;
-            videoEmbed.allowfullscreen = true;
-            var ingredientsList = document.createElement("ul");
-            for (var i = 1; i <= 20; i++) {
-                var measurement = messageArray["strMeasure" + i];
-                var ingredient = messageArray["strIngredient" + i];
-                if (measurement.trim() !== "" && ingredient.trim() !== "") {
-                    var listItem = document.createElement("li");
-                    listItem.innerText = measurement + " " + ingredient;
-                    ingredientsList.appendChild(listItem);
-                } else {
-                    break;
-                }
+            for (var i=0; i < messageArray.length; i++){
+                var item = messageArray[i];
+                var image = document.createElement("img");
+                image.src = item.strMealThumb;
+                var mealLink = document.createElement("a");
+                mealLink.href = "#";
+                mealLink.innerText = item.strMeal;
+                mealLink.setAttribute("data-mealid", item.idMeal);
+                mealLink.addEventListener("click", handleMealLinkClick);
+                var origin = document.createElement("p");
+                origin.textContent = item.strArea;
+                var ItemDiv = document.createElement("div");
+                ItemDiv.appendChild(image);
+                ItemDiv.appendChild(mealLink);
+                ItemDiv.appendChild(origin);
+                msgObject.appendChild(ItemDiv);
             }
-            meal_name.appendChild(name);
-            meal_image.appendChild(image);
-            origin_category.appendChild(originCategory);
-            meal_tags.appendChild(tags);
-            meal_instructions.appendChild(steps);
-            ingredients.appendChild(ingredientsList);
-            video.appendChild(videoEmbed);
         }
+    }
+    function handleMealLinkClick(event) {
+        event.preventDefault();
+        var mealId = event.target.getAttribute("data-mealid");
+        window.location.href = "mealOverview.html?mealId=" + mealId;
     }
 
     RequestSessionValidation(getCookieValue("sessionID"));
 
-    function getMealIdFromQuery() {
-            const queryString = window.location.search;
-            const urlParams = new URLSearchParams(queryString);
-            return urlParams.get("mealId");
-        }
-
-    window.addEventListener('load', function () {
-            const mealId = getMealIdFromQuery();
-            if (mealId) {
-                mealDetailRequest(mealId);
-            } else {
-                window.location.href = "home.html";
-            }
-        });
-     
-        function SendRatingRequest(mealID, accountID, rating) {
-            var request = new XMLHttpRequest();
-            request.open("POST", "ratingRequest.php", true);
-            request.setRequestHeader(
-                "Content-Type",
-                "application/x-www-form-urlencoded"
-        );
-        request.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-                console.log(this);
-                var response = this.responseText;
-                HandleRatingResponse(response);
-            }
-        };
-        request.send(
-            "type=rate&accountID=" +
-                accountID +
-                "&mealID=" +
-                mealID +
-                "&rating=" +
-                rating
-        );
-        console.log("Request Sent");
-    }
-
-    function SendRatingData() {
-        var mealID = getMealIdFromQuery();;
-        var accountID = getCookieValue("username");
-        var rating = document.getElementById("rating").value;
-        SendRatingRequest(mealID, accountID, rating);
-    }
-
-    function HandleRatingResponse(response) {
-        var responseObject = JSON.parse(response);
-        if (responseObject.returnCode == 1) {
-            window.alert("Recipe Rated Successfully.");
-	    var complete = document.createElement("p");
-            complete.innerText = "Rating saved.";
-            document.getElementById("completed").appendChild(complete);
-        } else {
-            console.log(responseObject);
-            window.alert("Error while trying to rate meal.")
-            console.log("Recipe Rating Failed: " + responseObject.message);
-        }
-    }
 </script>
