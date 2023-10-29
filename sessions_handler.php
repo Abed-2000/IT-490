@@ -138,3 +138,32 @@ function rateRecipe($mealID, $accountID, $rating)
             }
         }
     } 
+
+function doSHare($mealID, $accountID)
+{
+    global $dbHost, $dbUsername, $dbPassword, $dbName;
+    $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
+
+    if ($conn->connect_error) {
+        echo "Error connecting to database: " . $conn->connect_error . PHP_EOL;
+        exit(1);
+    }
+    $mid = $conn->real_escape_string($mealID);
+    $aid = $conn->real_escape_string($accountID);
+    $statement = "SELECT * FROM user_saves WHERE mealID = '$mid' AND userID = '$aid'";
+    $results = $conn->query($statement);
+
+    if($results->num_rows > 0){
+      $createSave = "INSERT INTO user_saves (mealID,userID) VALUES ('$mid', '$aid')";
+      if($conn->query($createSave)){
+      	 echo "new save made".PHP_EOL;
+                return array('returnCode' => 1, 'message' => 'Recipe Save Saved');
+            }else{
+                return array('returnCode' => 0, 'message' => 'Unable to Create Recipe Save.');
+            }
+      }
+      else{
+      	echo "already saved".PHP_EOL;
+      		return array('returnCode' =>0, 'message' => 'Already saved.');
+      }
+}

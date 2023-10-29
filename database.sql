@@ -32,6 +32,11 @@ CREATE TABLE IF NOT EXISTS custom_recipes (
     mealLink varChar(255),
     strArea varChar(255)
 );
+
+CREATE TABLE IF NOT EXISTS user_saves (
+	mealID INT,
+	userID INT
+);
 COMMIT;
 
 /*

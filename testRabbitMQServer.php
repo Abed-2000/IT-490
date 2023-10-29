@@ -54,6 +54,8 @@ function requestProcessor($request)
       return doLogout($request['sessionID']);
     case "rate":
       return doRate($request['mealID'], $request['accountID'], $request['rating']);
+     case "share":
+      return doShare($request['mealID'], $request['accountID']);
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }
