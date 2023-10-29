@@ -4,7 +4,7 @@
         <link rel="stylesheet" href="styles.css">
         <title>Top Meals | Good Eats</title>
     </head>
-    <body>
+    <body onload="doRank()">
         <nav>
 	    <label>Good Eats<label>
 	    <input type="button" value="Home" onclick="window.location.href='home.html'" />
@@ -17,7 +17,7 @@
         <h2 id="msg2">
     		<input type="button" id="loadTopRank" value="Load Top Rank" onclick="loadTopRank()" />
 	</h2>
-        
+
         <div id="api_content"></div>
     </body>
 </html>
@@ -61,7 +61,7 @@
             location.href = "index.html";
         }
     }
-    
+
     function SendLogoutRequest(ID){
         var request = new XMLHttpRequest();
         request.open("POST", "sessionRequest.php", true);
@@ -95,7 +95,7 @@
     function logoutBtn(){
         SendLogoutRequest(getCookieValue("sessionID"));
     }
-    
+
 	function loadTopRank() {
 	    RequestSessionValidation(getCookieValue("sessionID"));
 	    fetchTop();

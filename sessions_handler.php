@@ -1,5 +1,5 @@
 <?php
-$dbHost = '127.0.0.1';
+$dbHost = '1192.168.191.11';
 $dbUsername = 'testUser';
 $dbPassword = '12345';
 $dbName = 'IT490';
@@ -137,4 +137,22 @@ function rateRecipe($mealID, $accountID, $rating)
                 return array('returnCode' => 0, 'message' => 'Unable to Create Recipe Rating.');
             }
         }
-    } 
+    }
+    
+    
+    function top10()
+    {
+        global $dbHost, $dbUsername, $dbPassword, $dbName;
+        $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
+    
+        if ($conn->connect_error) {
+            echo "Error connecting to database: " . $conn->connect_error . PHP_EOL;
+            exit(1);
+        }
+        $statement = "SELECT r.mealID, SUM(r.rating) AS total_rating
+              FROM ratings r
+              GROUP BY r.mealID
+              ORDER BY total_rating DESC
+              LIMIT 10";
+        $results = $conn->query($statement);
+        } 

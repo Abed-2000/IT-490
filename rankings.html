@@ -17,11 +17,7 @@
         <h2 id="msg2">
     		<input type="button" id="loadTopRank" value="Load Top Rank" onclick="loadTopRank()" />
 	</h2>
-<<<<<<< HEAD
-        
-=======
 
->>>>>>> e950074d3158ef70d281b86fc5a5a2bad6cb4df5
         <div id="api_content"></div>
     </body>
 </html>
@@ -65,11 +61,7 @@
             location.href = "index.html";
         }
     }
-<<<<<<< HEAD
-    
-=======
 
->>>>>>> e950074d3158ef70d281b86fc5a5a2bad6cb4df5
     function SendLogoutRequest(ID){
         var request = new XMLHttpRequest();
         request.open("POST", "sessionRequest.php", true);
@@ -103,11 +95,7 @@
     function logoutBtn(){
         SendLogoutRequest(getCookieValue("sessionID"));
     }
-<<<<<<< HEAD
-    
-=======
 
->>>>>>> e950074d3158ef70d281b86fc5a5a2bad6cb4df5
 	function loadTopRank() {
 	    RequestSessionValidation(getCookieValue("sessionID"));
 	    fetchTop();
@@ -160,8 +148,4 @@
     }
 
     RequestSessionValidation(getCookieValue("sessionID"));
-<<<<<<< HEAD
 </script>
-=======
-</script>
->>>>>>> e950074d3158ef70d281b86fc5a5a2bad6cb4df5

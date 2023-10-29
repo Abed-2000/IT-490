@@ -33,6 +33,9 @@ function doLogout($sessionID)
 function doRate($mealID, $accountID, $rating){
 	return rateRecipe($mealID, $accountID, $rating);
 }
+function doRank(){
+	return top10();
+}
 
 function requestProcessor($request)
 {
@@ -54,6 +57,8 @@ function requestProcessor($request)
       return doLogout($request['sessionID']);
     case "rate":
       return doRate($request['mealID'], $request['accountID'], $request['rating']);
+    case "rank":
+      return doRank();
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }
