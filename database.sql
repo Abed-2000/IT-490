@@ -17,20 +17,20 @@ CREATE TABLE IF NOT EXISTS sessions (
 );
 
 CREATE TABLE IF NOT EXISTS ratings (
-    MealID int PRIMARY KEY,
-    UserID int,
-    Rating int
+    mealID int PRIMARY KEY,
+    accountID varCHar(255),
+    rating int
 );
 
 CREATE TABLE IF NOT EXISTS custom_recipes (
     MealID int PRIMARY KEY,
-    strMeal varChar,
-    strMealThumb varChar,
-    strCatagory varChar,
-    strInstructions varChar,
-    strTags varChar
-    mealLink varChar,
-    strArea varChar
+    strMeal varChar(255),
+    strMealThumb varChar(255),
+    strCatagory varChar(255),
+    strInstructions varChar(255),
+    strTags varChar(255),
+    mealLink varChar(255),
+    strArea varChar(255)
 );
 COMMIT;
 
@@ -39,4 +39,3 @@ Creating Test User Account
 
 INSERT INTO `users`(UserId,Username,`Password`, Email) VALUES (1, 'testUser', '12345', 'testUser@test.com');
 */
-
