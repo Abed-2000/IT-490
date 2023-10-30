@@ -56,6 +56,8 @@ function requestProcessor($request)
       return doRate($request['mealID'], $request['accountID'], $request['rating']);
      case "share":
       return doShare($request['mealID'], $request['accountID']);
+     case "searchUser":
+      return doSearchUser($request['accountID']);
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }

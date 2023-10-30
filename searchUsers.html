@@ -95,5 +95,79 @@
     function logoutBtn(){
         SendLogoutRequest(getCookieValue("sessionID"));
     }
+    
+    
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    function goButton(){
+        var searchKeywords = document.getElementById("userKeyword").value;
+        RequestSessionValidation(getCookieValue("sessionID"));
+        searchRequest(searchKeywords);
+    }  
+  
+    function SendShareRequest(accountID) {
+            var request = new XMLHttpRequest();
+            request.open("POST", "searchUsers.php", true);
+            request.setRequestHeader(
+                "Content-Type",
+                "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleShareResponse(response);
+            }
+        };
+        request.send(
+            "type=searchUsers&accountID=" +
+                accountID
+   
+        );
+        console.log("Request Sent");
+    }
+
+    function SendShareData() {
+        var mealID = getMealIdFromQuery();
+        var accountID = getCookieValue("searchUsers");
+        SendShareRequest(accountID);
+    }
+
+    function HandleShareResponse(response) {
+        var responseObject = JSON.parse(response);
+        if (responseObject.returnCode == 1) {
+            window.alert("Recipe Shared Successfully.");
+	    var complete = document.createElement("p");
+            complete.innerText = "Rating shared.";
+            document.getElementById("completed").appendChild(complete);
+        } else {
+            console.log(responseObject);
+            window.alert("Error while trying to share meal.")
+            console.log("Recipe Sharing Failed: " + responseObject.message);
+        }
+    }
+    
+    function HandleSearchResponse(response) {
+        var responseObject = JSON.parse(response);
+        if (responseObject.returnCode == 1) {
+            var messageArray = responseObject.message;
+       	        var userId = event.target.getAttribute("data-accountID");                
+                window.location.href = "User.html?userID=" + userId;
+            }
+        }
+    
+    
 
 </script>
