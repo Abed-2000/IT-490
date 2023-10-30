@@ -33,6 +33,9 @@ function doLogout($sessionID)
 function doRate($mealID, $accountID, $rating){
 	return rateRecipe($mealID, $accountID, $rating);
 }
+function doSave($query){
+  return saveRecipe($query);
+}
 function doRank(){
 	return top10();
 }
@@ -57,6 +60,8 @@ function requestProcessor($request)
       return doLogout($request['sessionID']);
     case "rate":
       return doRate($request['mealID'], $request['accountID'], $request['rating']);
+    case "save_recipe":
+      return doSave($request['$sessionID']);
     case "rank":
       return doRank();
   }

@@ -27,6 +27,14 @@ function requestProcessor($request)
             } else {
                 return ['returnCode' => 0, 'message' => 'Query parameter is missing'];
             }
+            case "populateFields":
+                if (isset($request['query'])) {
+                    $response = populateFields($request['query']);
+                    var_dump($response);
+                    return $response;
+                } else {
+                    return ['returnCode' => 0, 'message' => 'Query parameter is missing'];
+                }
     }
 }
 

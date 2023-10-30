@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html>
     <head>
         <link rel="stylesheet" href="styles.css">
@@ -14,11 +14,11 @@
         </nav>
         <body>
             <h1>Create a New Meal Recipe</h1>
-        
+
             <form action="#" method="POST">
                 <label for="strMeal">Recipe Name:</label>
                 <input type="text" name="strMeal" required><br><br>
-                
+
                 <label for="strCategory">Category:</label>
                 <select name="strCategory" required>
                     <option value="">Select a Category</option>
@@ -28,7 +28,7 @@
                 <select name="strArea" required>
                     <option value="">Select an Area</option>
                 </select><br><br>
-        
+
                 <label>Ingredients:</label>
                 <div id="ingredients-container">
                     <div class="ingredient-row">
@@ -37,25 +37,25 @@
                     </div>
                 </div>
                 <button type="button" onclick="addIngredient()">Add Ingredient</button><br><br>
-                
+
                 <label for="strInstructions">Instructions:</label>
                 <textarea name="strInstructions" rows="4" required></textarea><br><br>
-                
+
                 <label for="strTags">Tags (Comma-separated):</label>
                 <input type="text" name="strTags"><br><br>
-                
+
                 <label for="strMealThumb">Thumbnail Image URL:</label>
                 <input type="text" name="strMealThumb"><br><br>
-        
+
                 <label for="strYoutube">Recipe Video URL:</label>
                 <input type="text" name="strYoutube"><br><br>
-                
+
                 <label for="created_by">Created By:</label>
                 <input type="text" name="created_by" readonly><br><br>
 
                 <label for="datePublished">Publication Date:</label>
                 <input type="date" name="datePublished" readonly><br><br>
-        
+
                 <input type="submit" value="Create Recipe">
             </form>
     </body>
@@ -98,7 +98,7 @@ function setCreatorName(){
             alert('You can add up to 20 ingredients.');
         }
     }
-    
+
     function removeIngredient(buttonElement) {
         const ingredientsContainer = document.querySelector('#ingredients-container');
         ingredientsContainer.removeChild(buttonElement.parentNode);
@@ -113,7 +113,7 @@ function setCreatorName(){
                 }
             }
         }
-    
+
         function RequestSessionValidation(ID) {
             var request = new XMLHttpRequest();
             request.open("POST", "sessionRequest.php", true);
@@ -159,24 +159,24 @@ function setCreatorName(){
             request.send("type=logout&sessionID=" + ID);
             console.log("Request Sent");
         }
-    
+
         function HandleLogoutResponse(response) {
             var msgObject = document.getElementById("msg");
             var responseObject = JSON.parse(response);
             if (responseObject.returnCode == 1) {
                 console.log("Logout Successful.");
                 location.href = "index.html"
-    
+
             } else {
                 location.href = "index.html"
                 console.log("Error logging out.");
             }
         }
-    
+
         function logoutBtn(){
             SendLogoutRequest(getCookieValue("sessionID"));
         }
-        
+
         function RequestPopulateCategory() {
         var request = new XMLHttpRequest();
         request.open("POST", "searchRequest.php", true);
@@ -210,7 +210,7 @@ function setCreatorName(){
             console.error("Error while populating categories.");
     }
 }
-    
+
 function RequestPopulateArea() {
         var request = new XMLHttpRequest();
         request.open("POST", "searchRequest.php", true);
@@ -275,10 +275,10 @@ document.querySelector('form').addEventListener('submit', function (event) {
 
     this.reset();
     console.log(formDataArray);
-    return formDataArray();
+    RequestSaveMeal(formDataArray);
 });
 
-function RequestSaveMeal() {
+function RequestSaveMeal(formData) {
         var request = new XMLHttpRequest();
         request.open("POST", "searchRequest.php", true);
         request.setRequestHeader(
@@ -292,21 +292,13 @@ function RequestSaveMeal() {
                 HandleSaveMeal(response);
             }
         };
-        request.send("type=save_recipe&query=" + form);
+        request.send("type=save_recipe&query=" + formData);
         console.log("Request Sent");
     }
-    function HandlePopulateArea(response) {
+    function HandleSaveMeal(response) {
     var responseObject = JSON.parse(response);
     if (responseObject.returnCode == 1) {
-        var areaSelect = document.querySelector('select[name="strArea"]');
-        areaSelect.innerHTML = '';
-
-        responseObject.message.forEach(function (area) {
-            var option = document.createElement('option');
-            option.value = area.strArea;
-            option.textContent = area.strArea;
-            areaSelect.appendChild(option);
-        });
+        window.alert("Sucessfully Created Meal.");
     } else {
         console.error("Error while populating area.");
     }
@@ -317,6 +309,6 @@ function RequestSaveMeal() {
     RequestPopulateCategory();
     setCurrentDate();
     setCreatorName();
-    
+
 
 </script>
