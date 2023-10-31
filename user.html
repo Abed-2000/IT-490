@@ -97,18 +97,10 @@
         function logoutBtn(){
             SendLogoutRequest(getCookieValue("sessionID"));
         }
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
     
     //rated recipes
+    
+    //requests meal data from api given mealid
     function mealDetailRequest(query) {
         var request = new XMLHttpRequest();
         request.open("POST", "searchRequest.php", true);
@@ -123,16 +115,6 @@
                 HandleMealResponse(response);
             }
         };
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
         request.send("type=mealDetails&query=" + query);
         console.log("Meal Details Request Sent");
     }
@@ -159,14 +141,24 @@
                 var ItemDiv = document.createElement("div");
                 ItemDiv.appendChild(image);
                 ItemDiv.appendChild(mealLink);
-                const btn = documentcreateElement("button");
-                btn.innerHTML = "Hello Button";
-                document.body.appendChild(btn);
                 msgObject.appendChild(ItemDiv);
             }
         }
     }
-   
+      function getMealIdFromQuery() {
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            return urlParams.get("mealId");
+        }
+
+    window.addEventListener('load', function () {
+            const mealId = getMealIdFromQuery();
+            if (mealId) {
+                mealDetailRequest(mealId);
+            } else {
+                window.location.href = "home.html";
+            }
+        });
     function handleMealLinkClick(event) {
         event.preventDefault();
         var mealId = event.target.getAttribute("data-mealid");

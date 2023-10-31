@@ -33,7 +33,9 @@ function doLogout($sessionID)
 function doRate($mealID, $accountID, $rating){
 	return rateRecipe($mealID, $accountID, $rating);
 }
-
+function doSave($sessionID){
+  return saveRecipe($sessionID);
+}
 function requestProcessor($request)
 {
   echo "received request".PHP_EOL;
@@ -58,6 +60,8 @@ function requestProcessor($request)
       return doShare($request['mealID'], $request['accountID']);
      case "searchUser":
       return doSearchUser($request['accountID']);
+     case "save_recipe":
+      return doSave($request['sessionID']);
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }
