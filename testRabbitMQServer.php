@@ -26,6 +26,11 @@ function doValidate($sessionID)
   return validate_session($sessionID);
 }
 
+function doRank($query){
+	echo 'hi';
+	return topten($query);
+}
+
 function doLogout($sessionID)
 {
   return destroy_session($sessionID);
@@ -75,6 +80,9 @@ function requestProcessor($request)
       return doShare($request['mealID'], $request['accountID']);
      case "searchUser":
       return doSearchUser($request['accountID']);
+  }
+    case "top10":
+      return doRank($request['sessionID']);
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }

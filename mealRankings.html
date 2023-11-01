@@ -6,12 +6,11 @@
     </head>
     <body>
         <nav>
-            <label>Good Eats<label>
-            <input type="button" value="Home" onclick="window.location.href='home.html'" />
-            <input type="button" value="New Reciepe" onclick="window.location.href='createRecipe.html'" />
-            <input type="button" value="Rankings" onclick="window.location.href='mealRankings.html'" />
+	    <label>Good Eats<label>
+	    <input type="button" value="Home" onclick="window.location.href='home.html'" />
             <input type="button" value="Search" onclick="window.location.href='searchMeals.html'" />
-            <input type="button" value="Users" onclick="window.location.href='searchUsers.html'" />
+            <input type="button" value="Rankings" onclick="window.location.href='mealRankings.html'" />
+            <input type="button" value="Create" onclick="window.location.href='createRecipe.html'" />
             <input type="button" value="Logout" onclick="logoutBtn()" />
         </nav>
         <h1 id="msg">Ranking Meals</h1>
@@ -99,12 +98,12 @@
 
 	function loadTopRank() {
 	    RequestSessionValidation(getCookieValue("sessionID"));
-	    fetchTop();
+	    fetchTop(getCookieValue("username"));
 	}
 
-	function fetchTop() {
+	function fetchTop(ID) {
 	    var request = new XMLHttpRequest();
-	    request.open("POST", "top10Request.php", true);
+	    request.open("POST", "sessionRequest.php", true);
 	    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	    request.onreadystatechange = function () {
 		if (this.readyState == 4 && this.status == 200) {
@@ -112,17 +111,17 @@
 		    handleTop10Response(response);
 		}
 	    };
-	    request.send("type=top10");
+	    request.send("type=top10&sessionID=" + ID);
 	    console.log("Top 10 Ranks Sent");
 	}
 
-	function handleTopResponse(response) {
+	function handleTop10Response(response) {
 	    var msgObject = document.getElementById("api_content");
 	    msgObject.innerHTML = "";
 	    var responseObject = JSON.parse(response);
 	    if (responseObject.returnCode == 1) {
-		var top10Rank = responseObject.top10;
-		for (var i = 0; i < top10Rank.length; i++) {
+		var top10Rank = 10
+		for (var i = 0; i < top10Rank; i++) {
 		    var item = top10Rank[i];
 		    var image = document.createElement("img");
 		    image.src = item.strMealThumb;
