@@ -172,6 +172,50 @@
         var mealId = event.target.getAttribute("data-mealid");
         window.location.href = "mealOverview.html?mealId=" + mealId;
     }
+    
+    
+            function SendUnshareRequest(mealID, accountID) {
+            var request = new XMLHttpRequest();
+            request.open("POST", "unshareRequest.php", true);
+            request.setRequestHeader(
+                "Content-Type",
+                "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleShareResponse(response);
+            }
+        };
+        request.send(
+            "type=unshare&accountID=" +
+                accountID +
+                "&mealID=" +
+                mealID
+        );
+        console.log("Request Sent");
+    }
+
+    function SendUnshareData() {
+        var mealID = getMealIdFromQuery();
+        var accountID = getCookieValue("username");
+        SendShareRequest(mealID, accountID);
+    }
+
+    function HandleShareResponse(response) {
+        var responseObject = JSON.parse(response);
+        if (responseObject.returnCode == 1) {
+            window.alert("Recipe Unshared Successfully.");
+	    var complete = document.createElement("p");
+            complete.innerText = "Recipe unshared.";
+            document.getElementById("completed").appendChild(complete);
+        } else {
+            console.log(responseObject);
+            window.alert("Error while trying to unshare meal.")
+            console.log("Recipe unsharing Failed: " + responseObject.message);
+        }
+    }
 
     RequestSessionValidation(getCookieValue("sessionID"));
     
