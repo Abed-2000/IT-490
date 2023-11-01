@@ -155,4 +155,5 @@ function rateRecipe($mealID, $accountID, $rating)
               ORDER BY total_rating DESC
               LIMIT 10";
         $results = $conn->query($statement);
+        return $results;
         } 
