@@ -1,12 +1,4 @@
-10-28-2023 02:29:09pm
-error: rabbitMQServer: process_message: exception caught: mysqli_sql_exception: php_network_getaddresses: getaddrinfo for 1270.1 failed: Name or service not known in /home/admin/IT-490/login.php.inc:10
-Stack trace:
-#0 /home/admin/IT-490/login.php.inc(10): mysqli->__construct()
-#1 /home/admin/IT-490/testRabbitMQServer.php(14): loginDB->__construct()
-#2 /home/admin/IT-490/testRabbitMQServer.php(46): doLogin()
-#3 /home/admin/IT-490/rabbitMQLib.inc(59): requestProcessor()
-#4 [internal function]: rabbitMQServer->process_message()
-#5 /home/admin/IT-490/rabbitMQLib.inc(123): AMQPQueue->consume()
-#6 /home/admin/IT-490/testRabbitMQServer.php(66): rabbitMQServer->process_requests()
-#7 {main}
+10-31-2023 10:23:41pm
+received request
+
 

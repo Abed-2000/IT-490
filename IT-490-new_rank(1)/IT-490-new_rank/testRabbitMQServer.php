@@ -1,13 +1,10 @@
 #!/usr/bin/php
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
 require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 require_once('login.php.inc');
 include_once('sessions_handler.php');
-require('log_maker.php');
 
 function doLogin($username,$password)
 {
@@ -39,14 +36,13 @@ function doRate($mealID, $accountID, $rating){
 function doSave($query){
   return saveRecipe($query);
 }
-function doRank($query){
-	echo 'hi';
-	return topten($query);
+function doRank(){
+	return top10();
 }
 
 function requestProcessor($request)
 {
-  log_this("received request".PHP_EOL);
+  echo "received request".PHP_EOL;
   var_dump($request);
   if(!isset($request['type']))
   {
@@ -66,8 +62,8 @@ function requestProcessor($request)
       return doRate($request['mealID'], $request['accountID'], $request['rating']);
     case "save_recipe":
       return doSave($request['$sessionID']);
-    case "top10":
-      return doRank($request['sessionID']);
+    case "rank":
+      return doRank();
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }

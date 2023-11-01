@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Registration Page</title>
+    </head>
+    <body>
+        <h1>Register</h1>
+        <form action="registrationRequest.php" method="post">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required /><br /><br />
+
+            <label for="username">Username:</label>
+            <input
+                type="text"
+                id="username"
+                name="username"
+                required
+            /><br /><br />
+
+            <label for="password">Password:</label>
+            <input
+                type="password"
+                id="password"
+                name="password"
+                required
+            /><br /><br />
+
+            <label for="verifyPassword">Verify Password:</label>
+            <input
+                type="password"
+                id="verifyPassword"
+                name="verifyPassword"
+                required
+            /><br /><br />
+
+            <input type="button" value="Register" onclick="SendRegistrationData()" />
+        </form>
+        <p>Already have an account? <a href="index.html">Click here.</a></p>
+    </body>
+</html>
+
+<script>
+    function SendRegistrationRequest(username, password, email) {
+        var request = new XMLHttpRequest();
+        request.open("POST", "registrationRequest.php", true);
+        request.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleRegistrationResponse(response);
+            }
+        };
+        request.send(
+            "type=register&username=" +
+                username +
+                "&password=" +
+                password +
+                "&email=" +
+                email
+        );
+        console.log("Request Sent");
+    }
+
+    function SendRegistrationData() {
+        var username = document.getElementById("username").value;
+        var password = document.getElementById("password").value;
+        var verifyPassword = document.getElementById("verifyPassword").value;
+        var email = document.getElementById("email").value;
+
+        if (verifyPassword === password) {
+            SendRegistrationRequest(username, password, email);
+        } else {
+            window.alert("Passwords do not match.");
+        }
+    }
+    function HandleRegistrationResponse(response) {
+        var responseObject = JSON.parse(response);
+        if (responseObject.returnCode == 1) {
+            console.log("Account Created Successfully.");
+            window.location.href = "/index.html";
+        } else {
+            console.log(responseObject);
+            console.log("Account Creation Failed: " + responseObject.message);
+        }
+    }
+</script>
