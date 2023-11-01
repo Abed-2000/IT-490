@@ -55,39 +55,42 @@ function getMealDetails($query){
     }
 }
 
-function populateFields($query){
-    if($query == 'category'){
-        $apiEndpoint =  'www.themealdb.com/api/json/v1/1/list.php?c=list';
-        $ch = curl_init($apiEndpoint);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $response = curl_exec($ch);
-
-        if ($response === false) {
-            die('cURL Error: ' . curl_error($ch));
-        }
-
-        curl_close($ch);
-
-        $data = json_decode($response, true);
-        return array("returnCode" => 1, "message" => $data);
-
-    }elseif($query == 'area'){
-        $apiEndpoint = ' www.themealdb.com/api/json/v1/1/list.php?a=list';
-        $ch = curl_init($apiEndpoint);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $response = curl_exec($ch);
-
-        if ($response === false) {
-            die('cURL Error: ' . curl_error($ch));
-        }
-
-        curl_close($ch);
-
-        $data = json_decode($response, true);
-        return array("returnCode" => 1, "message" => $data);
-
-    }else{
+function populateFields($query) {
+    if ($query == 'category') {
+        $apiEndpoint = 'https://www.themealdb.com/api/json/v1/1/list.php?c=list';
+        $dataKey = "strCategory";
+    } elseif ($query == 'area') {
+        $apiEndpoint = 'https://www.themealdb.com/api/json/v1/1/list.php?a=list';
+        $dataKey = "strArea";
+    } else {
         return array("returnCode" => 0, "message" => "Error parsing query parameter.");
+    }
+
+    $ch = curl_init($apiEndpoint);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+
+    if ($response === false) {
+        die('cURL Error: ' . curl_error($ch));
+    }
+
+    curl_close($ch);
+
+    $data = json_decode($response, true);
+
+    if ($data === null) {
+        die('JSON Error: ' . json_last_error_msg());
+    }
+
+    if (isset($data["meals"])) {
+        $values = array();
+        foreach ($data["meals"] as $meal) {
+            $values[] = $meal[$dataKey];
+        }
+
+        return array("returnCode" => 1, "message" => $values);
+    } else {
+        return array("returnCode" => 0, "message" => "Data not found in the JSON response.");
     }
 }
 

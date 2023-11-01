@@ -29,10 +29,10 @@
                     <option value="">Select an Area</option>
                 </select><br><br>
         
-                <label>Ingredients:</label>
-                <div id="ingredients-container">
+                <label>strIngredients:</label>
+                <div id="strIngredients-container">
                     <div class="ingredient-row">
-                        <input type="text" name="strIngredients[]" placeholder="Ingredient Name">
+                        <input type="text" name="strIngredient[]" placeholder="Ingredient Name">
                         <input type="text" name="strMeasure[]" placeholder="Measurement">
                     </div>
                 </div>
@@ -82,26 +82,26 @@ function setCreatorName(){
 
 
     function addIngredient() {
-        const ingredientsContainer = document.querySelector('#ingredients-container');
-        const ingredientRows = ingredientsContainer.querySelectorAll('.ingredient-row');
+        const strIngredientsContainer = document.querySelector('#strIngredients-container');
+        const ingredientRows = strIngredientsContainer.querySelectorAll('.ingredient-row');
 
         if (ingredientRows.length < 20) {
             const newIngredientRow = document.createElement('div');
             newIngredientRow.classList.add('ingredient-row');
             newIngredientRow.innerHTML = `
-                <input type="text" name="strIngredients[]" placeholder="Ingredient Name">
+                <input type="text" name="strIngredient[]" placeholder="Ingredient Name">
                 <input type="text" name="strMeasure[]" placeholder="Measurement">
                 <button type="button" onclick="removeIngredient(this)">Remove</button>
             `;
-            ingredientsContainer.appendChild(newIngredientRow);
+            strIngredientsContainer.appendChild(newIngredientRow);
         } else {
-            alert('You can add up to 20 ingredients.');
+            alert('You can add up to 20 strIngredients.');
         }
     }
     
     function removeIngredient(buttonElement) {
-        const ingredientsContainer = document.querySelector('#ingredients-container');
-        ingredientsContainer.removeChild(buttonElement.parentNode);
+        const strIngredientsContainer = document.querySelector('#strIngredients-container');
+        strIngredientsContainer.removeChild(buttonElement.parentNode);
     }
 
     function getCookieValue(cookieName) {
@@ -132,11 +132,9 @@ function setCreatorName(){
             console.log("Request Sent");
         }
         function HandleSessionResponse(response) {
-            var msgObject = document.getElementById("msg");
             var responseObject = JSON.parse(response);
             if (responseObject.returnCode == 1) {
                 console.log("Validation Successful.");
-                msgObject.innerHTML = "Welcome " + getCookieValue("username");
             } else {
                 console.log("Invalid session found.");
                 location.href = "index.html";
@@ -195,19 +193,19 @@ function setCreatorName(){
         console.log("Request Sent");
     }
     function HandlePopulateCategory(response) {
-        var responseObject = JSON.parse(response);
-        if (responseObject.returnCode == 1) {
-            var categorySelect = document.querySelector('select[name="strCategory"]');
-            categorySelect.innerHTML = '';
+    var responseObject = JSON.parse(response);
+    if (responseObject.returnCode == 1) {
+        var categorySelect = document.querySelector('select[name="strCategory"]');
+        categorySelect.innerHTML = '';
 
-             responseObject.categories.forEach(function (category) {
-                var option = document.createElement('option');
-                option.value = category;
-                option.textContent = category;
-                categorySelect.appendChild(option);
-             });
+        responseObject.message.forEach(function (value) {
+            var option = document.createElement('option');
+            option.value = value;
+            option.textContent = value;
+            categorySelect.appendChild(option);
+        });
     } else {
-            console.error("Error while populating categories.");
+        console.error("Error while populating categories.");
     }
 }
     
@@ -234,53 +232,54 @@ function RequestPopulateArea() {
         var areaSelect = document.querySelector('select[name="strArea"]');
         areaSelect.innerHTML = '';
 
-        responseObject.message.forEach(function (area) {
+        responseObject.message.forEach(function (value) {
             var option = document.createElement('option');
-            option.value = area.strArea;
-            option.textContent = area.strArea;
+            option.value = value;
+            option.textContent = value;
             areaSelect.appendChild(option);
         });
     } else {
         console.error("Error while populating area.");
     }
 }
-
 document.querySelector('form').addEventListener('submit', function (event) {
     event.preventDefault();
+    formDataArray = [];
     const formData = {
         strMeal: this.querySelector('input[name="strMeal"]').value,
         strCategory: this.querySelector('select[name="strCategory"]').value,
         strArea: this.querySelector('select[name="strArea"]').value,
-        strIngredients: [],
-        strMeasure: [],
         strInstructions: this.querySelector('textarea[name="strInstructions"]').value,
         strTags: this.querySelector('input[name="strTags"]').value,
         strMealThumb: this.querySelector('input[name="strMealThumb"]').value,
         strYoutube: this.querySelector('input[name="strYoutube"]').value,
         created_by: this.querySelector('input[name="created_by"]').value,
         datePublished: this.querySelector('input[name="datePublished"]').value,
+        strIngredient: [],
+        strMeasure: []
     };
 
     const ingredientRows = this.querySelectorAll('.ingredient-row');
     ingredientRows.forEach((row) => {
-        const ingredientName = row.querySelector('input[name="strIngredients[]"]').value;
+        const ingredientName = row.querySelector('input[name="strIngredient[]"]').value;
         const measurement = row.querySelector('input[name="strMeasure[]"]').value;
         if (ingredientName && measurement) {
-            formData.strIngredients.push(ingredientName);
+            formData.strIngredient.push(ingredientName);
             formData.strMeasure.push(measurement);
         }
     });
 
     formDataArray.push(formData);
 
-    this.reset();
-    console.log(formDataArray);
-    RequestSaveMeal(formDataArray);
+    const formDataArrayJSON = JSON.stringify(formDataArray);
+    RequestSaveMeal(formDataArrayJSON);
 });
 
-function RequestSaveMeal(formData) {
+
+
+function RequestSaveMeal(query) {
         var request = new XMLHttpRequest();
-        request.open("POST", "searchRequest.php", true);
+        request.open("POST", "sessionRequest.php", true);
         request.setRequestHeader(
             "Content-Type",
             "application/x-www-form-urlencoded"
@@ -292,7 +291,7 @@ function RequestSaveMeal(formData) {
                 HandleSaveMeal(response);
             }
         };
-        request.send("type=save_recipe&query=" + formData);
+        request.send("type=save_recipe&sessionID=" + query);
         console.log("Request Sent");
     }
     function HandleSaveMeal(response) {

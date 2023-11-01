@@ -108,7 +108,7 @@
         SendLogoutRequest(getCookieValue("sessionID"));
     }
 
-    function mealDetailRequest(query) {
+    function mealDetailRequestAPI(query) {
         var request = new XMLHttpRequest();
         request.open("POST", "searchRequest.php", true);
         request.setRequestHeader(
@@ -125,6 +125,25 @@
         request.send("type=mealDetails&query=" + query);
         console.log("Meal Details Request Sent");
     }
+
+    function mealDetailRequestDB(query) {
+        var request = new XMLHttpRequest();
+        request.open("POST", "sessionRequest.php", true);
+        request.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleMealResponse(response);
+            }
+        };
+        request.send("type=mealDetails&sessionID=" + query);
+        console.log("Meal Details Request Sent");
+    }
+
     function HandleMealResponse(response) {
         var meal_name = document.getElementById("meal_name");
         var meal_image = document.getElementById("meal_image");
@@ -183,11 +202,20 @@
             return urlParams.get("mealId");
         }
 
+    function getSourceFromQuery(){
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        return urlParams.get("origin")
+    }
+
     window.addEventListener('load', function () {
             const mealId = getMealIdFromQuery();
-            if (mealId) {
-                mealDetailRequest(mealId);
-            } else {
+            const source = getSourceFromQuery();
+            if (source == "API") {
+                mealDetailRequestAPI(mealId);
+            } else if (source == "DB") {
+                mealDetailRequestDB(mealId);
+            }else{
                 window.location.href = "home.html";
             }
         });

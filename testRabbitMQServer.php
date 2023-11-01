@@ -37,6 +37,14 @@ function doSave($query){
   return saveRecipe($query);
 }
 
+function doSearchMeals($query){
+  return searchMeals($query);
+}
+
+function doMealDetails($query){
+  return mealDetails($query);
+}
+
 function requestProcessor($request)
 {
   echo "received request".PHP_EOL;
@@ -58,7 +66,11 @@ function requestProcessor($request)
     case "rate":
       return doRate($request['mealID'], $request['accountID'], $request['rating']);
     case "save_recipe":
-      return doSave($request['$sessionID']);
+      return doSave($request['sessionID']);
+    case "searchMeals":
+      return doSearchMeals($request['sessionID']);
+    case "mealDetails":
+      return doMealDetails($request['sessionID']);
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }

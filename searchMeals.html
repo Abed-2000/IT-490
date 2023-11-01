@@ -98,9 +98,10 @@
     function goButton(){
         var searchKeywords = document.getElementById("mealKeyword").value;
         RequestSessionValidation(getCookieValue("sessionID"));
-        searchRequest(searchKeywords);
+        searchAPIRequest(searchKeywords);
+        searchDBRequest(searchKeywords);
     }
-    function searchRequest(query) {
+    function searchAPIRequest(query) {
         var request = new XMLHttpRequest();
         request.open("POST", "searchRequest.php", true);
         request.setRequestHeader(
@@ -111,13 +112,31 @@
             if (this.readyState == 4 && this.status == 200) {
                 console.log(this);
                 var response = this.responseText;
-                HandleSearchResponse(response);
+                HandleAPISearchResponse(response);
             }
         };
         request.send("type=searchMeals&query=" + query);
         console.log("Search Request Sent");
     }
-    function HandleSearchResponse(response) {
+    function searchDBRequest(query) {
+        var request = new XMLHttpRequest();
+        request.open("POST", "sessionRequest.php", true);
+        request.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleDBSearchResponse(response);
+            }
+        };
+        request.send("type=searchMeals&sessionID=" + query);
+        console.log("Search Request Sent");
+    }
+    
+    function HandleAPISearchResponse(response) {
         var msgObject = document.getElementById("api_content");
         msgObject.innerHTML = "";
         var responseObject = JSON.parse(response);
@@ -131,6 +150,7 @@
                 mealLink.href = "#";
                 mealLink.innerText = item.strMeal;
                 mealLink.setAttribute("data-mealid", item.idMeal);
+                mealLink.setAttribute("data-source", "external");
                 mealLink.addEventListener("click", handleMealLinkClick);
                 var origin = document.createElement("p");
                 origin.textContent = item.strArea;
@@ -142,10 +162,45 @@
             }
         }
     }
+
+    function HandleDBSearchResponse(response, source) {
+    var msgObject = document.getElementById("api_content");
+    var responseObject = JSON.parse(response);
+    if (responseObject.returnCode == 1) {
+        var messageArray = responseObject.message;
+        messageArray.forEach(function (item) {
+            var image = document.createElement("img");
+            image.src = item.strMealThumb;
+
+            var mealLink = document.createElement("a");
+            mealLink.href = "#";
+            mealLink.innerText = item.strMeal;
+            mealLink.setAttribute("data-mealid", item.id);
+            mealLink.setAttribute("data-source", "internal");
+            mealLink.addEventListener("click", handleMealLinkClick);
+            var origin = document.createElement("p");
+            origin.textContent = item.strArea;
+            var itemDiv = document.createElement("div");
+            itemDiv.appendChild(image);
+            itemDiv.appendChild(mealLink);
+            itemDiv.appendChild(origin);
+
+            msgObject.appendChild(itemDiv);
+        });
+        }
+}
+
     function handleMealLinkClick(event) {
         event.preventDefault();
+        var source = event.currentTarget.getAttribute("data-source");
         var mealId = event.target.getAttribute("data-mealid");
-        window.location.href = "mealOverview.html?mealId=" + mealId;
+        if (source === "internal") {
+            window.location.href = "mealOverview.html?origin=" + source + "&mealId=" + mealId;
+            console.log("Clicked from SQL database");
+        } else if (source === "external") {
+            window.location.href = "mealOverview.html?origin=" + source + "&mealId=" + mealId;
+            console.log("Clicked from API endpoint");
+        }
     }
 
     RequestSessionValidation(getCookieValue("sessionID"));
