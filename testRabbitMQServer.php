@@ -50,6 +50,10 @@ function doMealDetails($query){
   return mealDetails($query);
 }
 
+function doRank(){
+	return getRank();
+}
+
 function requestProcessor($request)
 {
   echo "received request".PHP_EOL;
@@ -80,6 +84,8 @@ function requestProcessor($request)
       return doShare($request['mealID'], $request['accountID']);
      case "searchUser":
       return doSearchUser($request['accountID']);
+     case "rank":
+      return doRank();
   }
     case "top10":
       return doRank($request['sessionID']);

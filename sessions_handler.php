@@ -281,4 +281,31 @@ function doShare($mealID, $accountID)
       		return array('returnCode' =>0, 'message' => 'Already saved.');
       }
 }
+
+function getRank(){
+    global $dbHost, $dbUsername, $dbPassword, $dbName;
+    $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
+
+    if ($conn->connect_error) {
+        echo "Error connecting to database: " . $conn->connect_error . PHP_EOL;
+        exit(1);
+   }
+   
+   $sql = "SELECT SUM(rating), mealID FROM ratings GROUP BY mealID ORDER BY SUM(rating) DESC";
+   $stmt = $conn->prepare($sql);
+   $stmt->execute();
+   
+   $results = $conn->query($statement);
+   $meals = array()
+      while($row = $results -> fetch_assoc()) {
+	$meals[] = $row;
+      }
+   $stmt->close();
+   $conn->close();
+   if (count($meals) > 0) {
+       return array("returnCode" => 1, "message" => $meals);
+   } else {
+       return array("returnCode" => 0, "message" => "No rankings found.");
+   }
+}
 ?>

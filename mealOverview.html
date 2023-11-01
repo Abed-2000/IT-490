@@ -222,7 +222,7 @@
     }
 
     function SendRatingData() {
-        var mealID = getMealIdFromQuery();;
+        var mealID = getMealIdFromQuery();
         var accountID = getCookieValue("username");
         var rating = document.getElementById("rating").value;
         SendRatingRequest(mealID, accountID, rating);

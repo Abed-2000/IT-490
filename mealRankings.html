@@ -23,6 +23,10 @@
 </html>
 
 <script>
+
+
+//get cookie
+
     function getCookieValue(cookieName) {
         const cookies = document.cookie.split(";");
         for (let i = 0; i < cookies.length; i++) {
@@ -32,6 +36,10 @@
             }
         }
     }
+
+
+//sessions
+
 
     function RequestSessionValidation(ID) {
         var request = new XMLHttpRequest();
@@ -61,6 +69,9 @@
             location.href = "index.html";
         }
     }
+    
+    
+//logout
 
     function SendLogoutRequest(ID){
         var request = new XMLHttpRequest();
@@ -95,33 +106,51 @@
     function logoutBtn(){
         SendLogoutRequest(getCookieValue("sessionID"));
     }
+    
+    
+//rank
 
-	function loadTopRank() {
-	    RequestSessionValidation(getCookieValue("sessionID"));
-	    fetchTop(getCookieValue("username"));
+//click button
+
+function loadTopRank() {
+	RequestSessionValidation(getCOokieValue("sessionID"));
+	SendRankRequest();
+}
+
+//build/send request to ratings table
+function SendRankRequest(){
+            var request = new XMLHttpRequest();
+            request.open("POST", "rankRequest.php", true);
+            request.setRequestHeader(
+                "Content-Type",
+                "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleRankResponse(response);
+            }
+        };
+        request.send(
+            "type=rate"
+        );
+        console.log("Request Sent");
+    }
+
+//handle request - api call
+
+//click name to change link
+	function HandleRankResponse(response) {
+		
 	}
 
-	function fetchTop(ID) {
-	    var request = new XMLHttpRequest();
-	    request.open("POST", "sessionRequest.php", true);
-	    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-	    request.onreadystatechange = function () {
-		if (this.readyState == 4 && this.status == 200) {
-		    var response = this.responseText;
-		    handleTop10Response(response);
-		}
-	    };
-	    request.send("type=top10&sessionID=" + ID);
-	    console.log("Top 10 Ranks Sent");
-	}
-
-	function handleTop10Response(response) {
+	function HandleRankResponse(response) {
 	    var msgObject = document.getElementById("api_content");
 	    msgObject.innerHTML = "";
 	    var responseObject = JSON.parse(response);
 	    if (responseObject.returnCode == 1) {
-		var top10Rank = 10
-		for (var i = 0; i < top10Rank; i++) {
+		for (var i = 0; i < 10; i++) {
 		    var item = top10Rank[i];
 		    var image = document.createElement("img");
 		    image.src = item.strMealThumb;
