@@ -141,15 +141,13 @@ function SendRankRequest(){
 //handle request - api call
 
 //click name to change link
-	function HandleRankResponse(response) {
-		
-	}
 
 	function HandleRankResponse(response) {
 	    var msgObject = document.getElementById("api_content");
 	    msgObject.innerHTML = "";
 	    var responseObject = JSON.parse(response);
 	    if (responseObject.returnCode == 1) {
+	    	var top10Rank = responseObject.rank;
 		for (var i = 0; i < 10; i++) {
 		    var item = top10Rank[i];
 		    var image = document.createElement("img");
