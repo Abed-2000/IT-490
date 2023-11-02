@@ -7,10 +7,12 @@
     <body>
         <nav>
             <label>Good Eats<label>
-                <input type="button" value="Home" onclick="window.location.href='home.html'" />
-                <input type="button" value="Search" onclick="window.location.href='searchMeals.html'" />
-                <input type="button" value="Rankings" onclick="window.location.href='mealRankings.html'" />
-                <input type="button" value="Logout" onclick="logoutBtn()" />
+            <input type="button" value="Home" onclick="window.location.href='home.html'" />
+            <input type="button" value="Search" onclick="window.location.href='searchMeals.html'" />
+            <input type="button" value="New Reciepe" onclick="window.location.href='createRecipe.html'" />
+            <input type="button" value="Rankings" onclick="window.location.href='mealRankings.html'" />
+            <input type="button" value="Recommendations" onclick="window.location.href='recommendations.html'" />
+            <input type="button" value="Logout" id="logout" />
         </nav>
         <body>
             <h1>Create a New Meal Recipe</h1>
@@ -29,7 +31,7 @@
                     <option value="">Select an Area</option>
                 </select><br><br>
         
-                <label>strIngredients:</label>
+                <label>Ingredients:</label>
                 <div id="strIngredients-container">
                     <div class="ingredient-row">
                         <input type="text" name="strIngredient[]" placeholder="Ingredient Name">

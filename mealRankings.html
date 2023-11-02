@@ -6,23 +6,21 @@
     </head>
     <body>
         <nav>
-	    <label>Good Eats<label>
-	    <input type="button" value="Home" onclick="window.location.href='home.html'" />
+            <label>Good Eats<label>
+            <input type="button" value="Home" onclick="window.location.href='home.html'" />
             <input type="button" value="Search" onclick="window.location.href='searchMeals.html'" />
+            <input type="button" value="New Reciepe" onclick="window.location.href='createRecipe.html'" />
             <input type="button" value="Rankings" onclick="window.location.href='mealRankings.html'" />
-            <input type="button" value="Create" onclick="window.location.href='createRecipe.html'" />
-            <input type="button" value="Logout" onclick="logoutBtn()" />
+            <input type="button" value="Recommendations" onclick="window.location.href='recommendations.html'" />
+            <input type="button" value="Logout" id="logout" />
         </nav>
         <h1 id="msg">Ranking Meals</h1>
-        <h2 id="msg2">
-    		<input type="button" id="loadTopRank" value="Load Top Rank" onclick="loadTopRank()" />
-	</h2>
-
         <div id="api_content"></div>
     </body>
 </html>
 
 <script>
+//get cookie
     function getCookieValue(cookieName) {
         const cookies = document.cookie.split(";");
         for (let i = 0; i < cookies.length; i++) {
@@ -32,6 +30,10 @@
             }
         }
     }
+
+
+//sessions
+
 
     function RequestSessionValidation(ID) {
         var request = new XMLHttpRequest();
@@ -61,6 +63,9 @@
             location.href = "index.html";
         }
     }
+    
+    
+//logout
 
     function SendLogoutRequest(ID){
         var request = new XMLHttpRequest();
@@ -95,57 +100,77 @@
     function logoutBtn(){
         SendLogoutRequest(getCookieValue("sessionID"));
     }
+    
+    
+//rank
 
-	function loadTopRank() {
-	    RequestSessionValidation(getCookieValue("sessionID"));
-	    fetchTop();
-	}
+//click button
 
-	function fetchTop() {
-	    var request = new XMLHttpRequest();
-	    request.open("POST", "top10Request.php", true);
-	    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-	    request.onreadystatechange = function () {
-		if (this.readyState == 4 && this.status == 200) {
-		    var response = this.responseText;
-		    handleTop10Response(response);
-		}
-	    };
-	    request.send("type=top10");
-	    console.log("Top 10 Ranks Sent");
-	}
+function loadTopRank() {
+	RequestSessionValidation(getCookieValue("sessionID"));
+	SendRankRequest();
+}
 
-	function handleTopResponse(response) {
-	    var msgObject = document.getElementById("api_content");
-	    msgObject.innerHTML = "";
-	    var responseObject = JSON.parse(response);
-	    if (responseObject.returnCode == 1) {
-		var top10Rank = responseObject.top10;
-		for (var i = 0; i < top10Rank.length; i++) {
-		    var item = top10Rank[i];
-		    var image = document.createElement("img");
-		    image.src = item.strMealThumb;
-		    var mealLink = document.createElement("a");
-		    mealLink.href = "#";
-		    mealLink.innerText = item.strMeal;
-		    mealLink.setAttribute("data-mealid", item.idMeal);
-		    mealLink.addEventListener("click", handleMealLinkClick);
-		    var origin = document.createElement("p");
-		    origin.textContent = item.strArea;
-		    var ItemDiv = document.createElement("div");
-		    ItemDiv.appendChild(image);
-		    ItemDiv.appendChild(mealLink);
-		    ItemDiv.appendChild(origin);
-		    msgObject.appendChild(ItemDiv);
-		}
-	    }
-	}
+window.addEventListener("load", loadTopRank);
 
-    function handleMealLinkClick(event) {
-        event.preventDefault();
-        var mealId = event.target.getAttribute("data-mealid");
-        window.location.href = "mealOverview.html?mealId=" + mealId;
+//build/send request to ratings table
+function SendRankRequest(){
+            var request = new XMLHttpRequest();
+            request.open("POST", "rankRequest.php", true);
+            request.setRequestHeader(
+                "Content-Type",
+                "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleRankResponse(response);
+            }
+        };
+        request.send(
+            "type=rank"
+        );
+        console.log("Request Sent");
     }
 
-    RequestSessionValidation(getCookieValue("sessionID"));
+//handle request - api call
+
+//click name to change link
+
+function HandleRankResponse(response) {
+    var msgObject = document.getElementById("api_content");
+    msgObject.innerHTML = "";
+    var responseObject = JSON.parse(response);
+
+    if (responseObject.returnCode === 1) {
+        var top10Rank = responseObject.message;
+        top10Rank.sort(function (a, b) {
+            return b.totalRating - a.totalRating;
+        });
+        top10Rank = top10Rank.slice(0, 10);
+
+        for (var i = 0; i < top10Rank.length; i++) {
+            var item = top10Rank[i];
+            var mealLink = document.createElement("a");
+            mealLink.href = "#";
+            mealLink.innerText = "Meal: " + item.strMeal;
+            
+            var image = document.createElement("img");
+            image.src = item.strMealThumb;
+            image.alt = item.strMeal;
+            var ratingInfo = document.createElement("p");
+            ratingInfo.innerText = "Total Rating: " + item.totalRating;
+
+            var mealDiv = document.createElement("div");
+            mealDiv.appendChild(image);
+            mealDiv.appendChild(mealLink);
+            mealDiv.appendChild(ratingInfo);
+
+            msgObject.appendChild(mealDiv);
+        }
+    }
+}
+
+
 </script>

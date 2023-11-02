@@ -247,6 +247,8 @@ function searchMeals($query) {
         $stmt->close();
         $conn->close();
         
+        echo print_r($mealData);
+        
         if ($mealData) {
             return array("returnCode" => 1, "message" => $mealData);
         } else {
@@ -281,4 +283,67 @@ function doShare($mealID, $accountID)
       		return array('returnCode' =>0, 'message' => 'Already saved.');
       }
 }
+
+function getRank(){
+    global $dbHost, $dbUsername, $dbPassword, $dbName;
+    $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
+
+    if ($conn->connect_error) {
+        echo "Error connecting to database: " . $conn->connect_error . PHP_EOL;
+        exit(1);
+   }
+   
+   $sql = "SELECT SUM(rating), mealID FROM ratings GROUP BY mealID ORDER BY SUM(rating) DESC LIMIT 5";
+   $stmt = $conn->prepare($sql);
+   $stmt->execute();
+   
+   $result = $stmt->get_result();
+   $meals = array();
+      while($row = $result -> fetch_assoc()) {
+	$meals[] = $row;
+      }
+   $stmt->close();
+   $conn->close();
+   if (count($meals) > 0) {
+       return array("returnCode" => 1, "message" => $meals);
+   } else {
+       return array("returnCode" => 0, "message" => "No rankings found.");
+   }
+}
+
+function getMealRating($mealID) {
+    global $dbHost, $dbUsername, $dbPassword, $dbName;
+    
+    $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
+
+    if ($conn->connect_error) {
+        echo "Error connecting to the database: " . $conn->connect_error;
+        exit(1);
+    }
+
+    $sql = "SELECT SUM(rating) as total_rating FROM ratings WHERE mealid = ?";
+    $stmt = $conn->prepare($sql);
+
+    if ($stmt === false) {
+        echo "Error preparing the SQL statement: " . $conn->error;
+        exit(1);
+    }
+
+    $stmt->bind_param("s", $mealID);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+
+    $ratingData = $result->fetch_assoc();
+
+    $stmt->close();
+    $conn->close();
+
+    if ($ratingData) {
+        return array("returnCode" => 1, "message" => $ratingData);
+    } else {
+        return array("returnCode" => 0, "message" => "No rating data found.");
+    }
+}
+
 ?>

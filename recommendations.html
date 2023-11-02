@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="styles.css">
+        <title>Top Meals | Good Eats</title>
+    </head>
+    <body>
+        <nav>
+            <label>Good Eats<label>
+            <input type="button" value="Home" onclick="window.location.href='home.html'" />
+            <input type="button" value="Search" onclick="window.location.href='searchMeals.html'" />
+            <input type="button" value="New Reciepe" onclick="window.location.href='createRecipe.html'" />
+            <input type="button" value="Rankings" onclick="window.location.href='mealRankings.html'" />
+            <input type="button" value="Recommendations" onclick="window.location.href='recommendations.html'" />
+            <input type="button" value="Logout" id="logout" />
+        </nav>
+        <h1 id="msg">Meal Recommendation</h1>
+
+        <div id="api_content"></div>
+    </body>
+</html>
+
+<script>
+
+
+//get cookie
+
+    function getCookieValue(cookieName) {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(`${cookieName}=`)) {
+                return cookie.substring(cookieName.length + 1);
+            }
+        }
+    }
+
+
+//sessions
+
+
+    function RequestSessionValidation(ID) {
+        var request = new XMLHttpRequest();
+        request.open("POST", "sessionRequest.php", true);
+        request.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleSessionResponse(response);
+            }
+        };
+        request.send("type=validate_session&sessionID=" + ID);
+        console.log("Request Sent");
+    }
+    function HandleSessionResponse(response) {
+        var msgObject = document.getElementById("msg");
+        var msgObject2 = document.getElementById("msg2")
+        var responseObject = JSON.parse(response);
+        if (responseObject.returnCode == 1) {
+            console.log("Validation Successful.");
+        } else {
+            console.log("Invalid session found.");
+            location.href = "index.html";
+        }
+    }
+    
+    
+//logout
+
+    function SendLogoutRequest(ID){
+        var request = new XMLHttpRequest();
+        request.open("POST", "sessionRequest.php", true);
+        request.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleLogoutResponse(response);
+            }
+        };
+        request.send("type=logout&sessionID=" + ID);
+        console.log("Request Sent");
+    }
+
+    function HandleLogoutResponse(response) {
+        var msgObject = document.getElementById("msg");
+        var responseObject = JSON.parse(response);
+        if (responseObject.returnCode == 1) {
+            console.log("Logout Successful.");
+            location.href = "index.html"
+
+        } else {
+            console.log("Error logging out.");
+        }
+    }
+
+    function logoutBtn(){
+        SendLogoutRequest(getCookieValue("sessionID"));
+    }
+    
+    
+//rank
+
+//click button
+
+function onload() {
+	RequestSessionValidation(getCookieValue("sessionID"));
+	SendRecommendRequest(getCookieValue("username"));
+}
+
+window.addEventListener("load", onload);
+
+//build/send request to ratings table
+function SendRecommendRequest(username){
+            var request = new XMLHttpRequest();
+            request.open("POST", "sessionRequest.php", true);
+            request.setRequestHeader(
+                "Content-Type",
+                "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleRecommendResponse(response);
+            }
+        };
+        request.send(
+            "type=recommend&sessionID=" + username
+        );
+        console.log("Request Sent");
+    }
+
+function HandleRecommendResponse(response) {
+    var msgObject = document.getElementById("api_content");
+    msgObject.innerHTML = "";
+    var responseObject = JSON.parse(response);
+    if (responseObject && responseObject.idMeal) {
+        var randomUnratedMeal = responseObject;
+        var image = document.createElement("img");
+        image.src = randomUnratedMeal.strMealThumb;
+        var mealLink = document.createElement("a");
+        mealLink.href = "#";
+        mealLink.innerText = randomUnratedMeal.strMeal;
+        mealLink.setAttribute("data-mealid", randomUnratedMeal.idMeal);
+        mealLink.setAttribute("data-source", "external");
+        mealLink.addEventListener("click", handleMealLinkClick);
+        var origin = document.createElement("p");
+        origin.textContent = randomUnratedMeal.strArea;
+        var ItemDiv = document.createElement("div");
+        ItemDiv.appendChild(image);
+        ItemDiv.appendChild(mealLink);
+        ItemDiv.appendChild(origin);
+        msgObject.appendChild(ItemDiv);
+    } else {
+        var noMealMessage = document.createElement("p");
+        noMealMessage.textContent = "No recommended meal available at the moment.";
+        msgObject.appendChild(noMealMessage);
+    }
+}
+
+function handleMealLinkClick(event) {
+    event.preventDefault();
+    var source = event.currentTarget.getAttribute("data-source");
+    var mealId = event.target.getAttribute("data-mealid");
+    if (source === "internal") {
+        window.location.href = "mealOverview.html?origin=" + source + "&mealId=" + mealId;
+        console.log("Clicked from SQL database");
+    } else if (source === "external") {
+        window.location.href = "mealOverview.html?origin=" + source + "&mealId=" + mealId;
+        console.log("Clicked from API endpoint");
+    }
+}
+</script>

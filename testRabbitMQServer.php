@@ -45,6 +45,14 @@ function doMealDetails($query){
   return mealDetails($query);
 }
 
+function doRank(){
+	return getRank();
+}
+
+function getRating($query){
+  return getMealRating($query);
+}
+
 function requestProcessor($request)
 {
   echo "received request".PHP_EOL;
@@ -71,6 +79,14 @@ function requestProcessor($request)
       return doSearchMeals($request['sessionID']);
     case "mealDetails":
       return doMealDetails($request['sessionID']);
+    case "share":
+      return doShare($request['mealID'], $request['accountID']);
+    case "searchUser":
+      return doSearchUser($request['accountID']);
+    case "rank":
+      return doRank();
+    case "getMealRating":
+      return getRating($request['sessionID']);
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }

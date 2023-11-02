@@ -7,11 +7,12 @@
     <body>
         <nav>
             <label>Good Eats<label>
-
+            <input type="button" value="Home" onclick="window.location.href='home.html'" />
             <input type="button" value="Search" onclick="window.location.href='searchMeals.html'" />
             <input type="button" value="New Reciepe" onclick="window.location.href='createRecipe.html'" />
             <input type="button" value="Rankings" onclick="window.location.href='mealRankings.html'" />
-            <input type="button" value="Logout" onclick="logoutBtn()" />
+            <input type="button" value="Recommendations" onclick="window.location.href='recommendations.html'" />
+            <input type="button" value="Logout" id="logout" />
         </nav>
         <h1 id="msg"></h1>
         <h3>Rated Recipes:</h3>
@@ -93,9 +94,10 @@
             }
         }
     
-        function logoutBtn(){
+        var btn = document.getElementById('logout');
+        btn.addEventListener("click", function(){
             SendLogoutRequest(getCookieValue("sessionID"));
-        }
+        });
     
     //rated recipes
     
@@ -155,13 +157,8 @@
             var mealId = event.target.getAttribute("data-mealid");
             window.location.href = "mealOverview.html?mealId=" + mealId;
         }
-    
-        RequestSessionValidation(getCookieValue("sessionID"));
-        
-        
-        
-        
-            function SendRatedMealsRequest(accountID) {
+
+        function SendRatedMealsRequest(accountID) {
             getCookieValue("sessionID");
             var request = new XMLHttpRequest();
             request.open("POST", "ratedMealsRequest.php", true);
@@ -178,7 +175,7 @@
             };
             request.send(
                 "type=ratereturn&accountID=" +
-                    accountID +
+                    accountID
     
             );
             console.log("Request Sent");
@@ -201,6 +198,9 @@
                 console.log("Recipe Rating Failed: " + responseObject.message);
             }
         }
-    
-    
+        window.addEventListener('load', function () {
+            RequestSessionValidation(getCookieValue("sessionID"));
+            console.log("session id request send");
+            });
+
     </script>
