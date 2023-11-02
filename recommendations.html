@@ -14,13 +14,17 @@
             <input type="button" value="Recommendations" onclick="window.location.href='recommendations.html'" />
             <input type="button" value="Logout" id="logout" />
         </nav>
-        <h1 id="msg">Ranking Meals</h1>
+        <h1 id="msg">Meal Recommendation</h1>
+
         <div id="api_content"></div>
     </body>
 </html>
 
 <script>
+
+
 //get cookie
+
     function getCookieValue(cookieName) {
         const cookies = document.cookie.split(";");
         for (let i = 0; i < cookies.length; i++) {
@@ -106,17 +110,17 @@
 
 //click button
 
-function loadTopRank() {
+function onload() {
 	RequestSessionValidation(getCookieValue("sessionID"));
-	SendRankRequest();
+	SendRecommendRequest(getCookieValue("username"));
 }
 
-window.addEventListener("load", loadTopRank);
+window.addEventListener("load", onload);
 
 //build/send request to ratings table
-function SendRankRequest(){
+function SendRecommendRequest(username){
             var request = new XMLHttpRequest();
-            request.open("POST", "rankRequest.php", true);
+            request.open("POST", "sessionRequest.php", true);
             request.setRequestHeader(
                 "Content-Type",
                 "application/x-www-form-urlencoded"
@@ -125,52 +129,53 @@ function SendRankRequest(){
             if (this.readyState == 4 && this.status == 200) {
                 console.log(this);
                 var response = this.responseText;
-                HandleRankResponse(response);
+                HandleRecommendResponse(response);
             }
         };
         request.send(
-            "type=rank"
+            "type=recommend&sessionID=" + username
         );
         console.log("Request Sent");
     }
 
-//handle request - api call
-
-//click name to change link
-
-function HandleRankResponse(response) {
+function HandleRecommendResponse(response) {
     var msgObject = document.getElementById("api_content");
     msgObject.innerHTML = "";
     var responseObject = JSON.parse(response);
-
-    if (responseObject.returnCode === 1) {
-        var top10Rank = responseObject.message;
-        top10Rank.sort(function (a, b) {
-            return b.totalRating - a.totalRating;
-        });
-        top10Rank = top10Rank.slice(0, 10);
-
-        for (var i = 0; i < top10Rank.length; i++) {
-            var item = top10Rank[i];
-            var mealLink = document.createElement("a");
-            mealLink.href = "#";
-            mealLink.innerText = "Meal: " + item.strMeal;
-            
-            var image = document.createElement("img");
-            image.src = item.strMealThumb;
-            image.alt = item.strMeal;
-            var ratingInfo = document.createElement("p");
-            ratingInfo.innerText = "Total Rating: " + item.totalRating;
-
-            var mealDiv = document.createElement("div");
-            mealDiv.appendChild(image);
-            mealDiv.appendChild(mealLink);
-            mealDiv.appendChild(ratingInfo);
-
-            msgObject.appendChild(mealDiv);
-        }
+    if (responseObject && responseObject.idMeal) {
+        var randomUnratedMeal = responseObject;
+        var image = document.createElement("img");
+        image.src = randomUnratedMeal.strMealThumb;
+        var mealLink = document.createElement("a");
+        mealLink.href = "#";
+        mealLink.innerText = randomUnratedMeal.strMeal;
+        mealLink.setAttribute("data-mealid", randomUnratedMeal.idMeal);
+        mealLink.setAttribute("data-source", "external");
+        mealLink.addEventListener("click", handleMealLinkClick);
+        var origin = document.createElement("p");
+        origin.textContent = randomUnratedMeal.strArea;
+        var ItemDiv = document.createElement("div");
+        ItemDiv.appendChild(image);
+        ItemDiv.appendChild(mealLink);
+        ItemDiv.appendChild(origin);
+        msgObject.appendChild(ItemDiv);
+    } else {
+        var noMealMessage = document.createElement("p");
+        noMealMessage.textContent = "No recommended meal available at the moment.";
+        msgObject.appendChild(noMealMessage);
     }
 }
 
-
+function handleMealLinkClick(event) {
+    event.preventDefault();
+    var source = event.currentTarget.getAttribute("data-source");
+    var mealId = event.target.getAttribute("data-mealid");
+    if (source === "internal") {
+        window.location.href = "mealOverview.html?origin=" + source + "&mealId=" + mealId;
+        console.log("Clicked from SQL database");
+    } else if (source === "external") {
+        window.location.href = "mealOverview.html?origin=" + source + "&mealId=" + mealId;
+        console.log("Clicked from API endpoint");
+    }
+}
 </script>

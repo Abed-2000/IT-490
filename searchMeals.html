@@ -8,9 +8,11 @@
         <nav>
             <label>Good Eats<label>
             <input type="button" value="Home" onclick="window.location.href='home.html'" />
+            <input type="button" value="Search" onclick="window.location.href='searchMeals.html'" />
             <input type="button" value="New Reciepe" onclick="window.location.href='createRecipe.html'" />
             <input type="button" value="Rankings" onclick="window.location.href='mealRankings.html'" />
-            <input type="button" value="Logout" onclick="logoutBtn()" />
+            <input type="button" value="Recommendations" onclick="window.location.href='recommendations.html'" />
+            <input type="button" value="Logout" id="logout" />
         </nav>
         <h1 id="msg">Search Meals</h1>
         <h2 id="msg2">
@@ -150,7 +152,7 @@
                 mealLink.href = "#";
                 mealLink.innerText = item.strMeal;
                 mealLink.setAttribute("data-mealid", item.idMeal);
-                mealLink.setAttribute("data-source", "API");
+                mealLink.setAttribute("data-source", "external");
                 mealLink.addEventListener("click", handleMealLinkClick);
                 var origin = document.createElement("p");
                 origin.textContent = item.strArea;
@@ -176,7 +178,7 @@
             mealLink.href = "#";
             mealLink.innerText = item.strMeal;
             mealLink.setAttribute("data-mealid", item.id);
-            mealLink.setAttribute("data-source", "DB");
+            mealLink.setAttribute("data-source", "internal");
             mealLink.addEventListener("click", handleMealLinkClick);
             var origin = document.createElement("p");
             origin.textContent = item.strArea;
@@ -194,10 +196,10 @@
         event.preventDefault();
         var source = event.currentTarget.getAttribute("data-source");
         var mealId = event.target.getAttribute("data-mealid");
-        if (source === "DB") {
+        if (source === "internal") {
             window.location.href = "mealOverview.html?origin=" + source + "&mealId=" + mealId;
             console.log("Clicked from SQL database");
-        } else if (source === "API") {
+        } else if (source === "external") {
             window.location.href = "mealOverview.html?origin=" + source + "&mealId=" + mealId;
             console.log("Clicked from API endpoint");
         }

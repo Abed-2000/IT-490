@@ -8,11 +8,11 @@
         <nav>
             <label>Good Eats<label>
             <input type="button" value="Home" onclick="window.location.href='home.html'" />
+            <input type="button" value="Search" onclick="window.location.href='searchMeals.html'" />
             <input type="button" value="New Reciepe" onclick="window.location.href='createRecipe.html'" />
             <input type="button" value="Rankings" onclick="window.location.href='mealRankings.html'" />
-            <input type="button" value="Search" onclick="window.location.href='searchMeals.html'" />
-            <input type="button" value="Users" onclick="window.location.href='searchUsers.html'" />
-            <input type="button" value="Logout" onclick="logoutBtn()" />
+            <input type="button" value="Recommendations" onclick="window.location.href='recommendations.html'" />
+            <input type="button" value="Logout" id="logout" />
         </nav>
         <h1 id="msg"></h1>
         <h3>Rated Recipes:</h3>
@@ -94,129 +94,113 @@
             }
         }
     
-        function logoutBtn(){
+        var btn = document.getElementById('logout');
+        btn.addEventListener("click", function(){
             SendLogoutRequest(getCookieValue("sessionID"));
-        }
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+        });
     
     //rated recipes
-    function mealDetailRequest(query) {
-        var request = new XMLHttpRequest();
-        request.open("POST", "searchRequest.php", true);
-        request.setRequestHeader(
-            "Content-Type",
-            "application/x-www-form-urlencoded"
-        );
-        request.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-                console.log(this);
-                var response = this.responseText;
-                HandleMealResponse(response);
-            }
-        };
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        request.send("type=mealDetails&query=" + query);
-        console.log("Meal Details Request Sent");
-    }
-    function HandleMealResponse(response) {
-        var meal_name = document.getElementById("meal_name");
-        var meal_image = document.getElementById("meal_image");
-        
-        var responseObject = JSON.parse(response);
-        if (responseObject.returnCode == 1) {
-         var messageArray = responseObject.message;
-            for (var i=0; i < messageArray.length; i++){
-            	var messageArray = responseObject.message;
-            	var name = document.createElement("h1");
-            	name.innerText = messageArray.strMeal;
-            	var image = document.createElement("img");
-            	image.src = messageArray.strMealThumb;
- 		var mealLink = document.createElement("a");
-                mealLink.href = "#";
-                mealLink.innerText = item.strMeal;
-                mealLink.setAttribute("data-mealid", item.idMeal);
-                mealLink.addEventListener("click", handleMealLinkClick);
-            	meal_name.appendChild(name);
-            	meal_image.appendChild(image);
-                var ItemDiv = document.createElement("div");
-                ItemDiv.appendChild(image);
-                ItemDiv.appendChild(mealLink);
-                const btn = documentcreateElement("button");
-                btn.innerHTML = "Hello Button";
-                document.body.appendChild(btn);
-                msgObject.appendChild(ItemDiv);
-            }
+    
+    //gets meal id from user input CHANGE TO FROM DB
+        function getRecipes(){
+            var searchKeywords = document.getElementById("mealKeyword").value;
+            RequestSessionValidation(getCookieValue("sessionID"));
+            searchRequest(searchKeywords);
         }
-    }
-   
-    function handleMealLinkClick(event) {
-        event.preventDefault();
-        var mealId = event.target.getAttribute("data-mealid");
-        window.location.href = "mealOverview.html?mealId=" + mealId;
-    }
-    
-    
-            function SendUnshareRequest(mealID, accountID) {
+    //sends request of query to rabbit
+        function searchRequest(query) {
             var request = new XMLHttpRequest();
-            request.open("POST", "unshareRequest.php", true);
+            request.open("POST", "searchRequest.php", true);
             request.setRequestHeader(
                 "Content-Type",
                 "application/x-www-form-urlencoded"
-        );
-        request.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-                console.log(this);
-                var response = this.responseText;
-                HandleShareResponse(response);
-            }
-        };
-        request.send(
-            "type=unshare&accountID=" +
-                accountID +
-                "&mealID=" +
-                mealID
-        );
-        console.log("Request Sent");
-    }
-
-    function SendUnshareData() {
-        var mealID = getMealIdFromQuery();
-        var accountID = getCookieValue("username");
-        SendShareRequest(mealID, accountID);
-    }
-
-    function HandleShareResponse(response) {
-        var responseObject = JSON.parse(response);
-        if (responseObject.returnCode == 1) {
-            window.alert("Recipe Unshared Successfully.");
-	    var complete = document.createElement("p");
-            complete.innerText = "Recipe unshared.";
-            document.getElementById("completed").appendChild(complete);
-        } else {
-            console.log(responseObject);
-            window.alert("Error while trying to unshare meal.")
-            console.log("Recipe unsharing Failed: " + responseObject.message);
+            );
+            request.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log(this);
+                    var response = this.responseText;
+                    HandleSearchResponse(response);
+                }
+            };
+            request.send("type=searchMeals&query=" + query);
+            console.log("Search Request Sent");
         }
-    }
+    //returns meal date for meal id, places into div 
+        function HandleSearchResponse(response) {
+            var msgObject = document.getElementById("api_content");
+            msgObject.innerHTML = "";
+            var responseObject = JSON.parse(response);
+            if (responseObject.returnCode == 1) {
+                var messageArray = responseObject.message;
+                for (var i=0; i < messageArray.length; i++){
+                    var item = messageArray[i];
+                    var image = document.createElement("img");
+                    image.src = item.strMealThumb;
+                    var mealLink = document.createElement("a");
+                    mealLink.href = "#";
+                    mealLink.innerText = item.strMeal;
+                    mealLink.setAttribute("data-mealid", item.idMeal);
+                    mealLink.addEventListener("click", handleMealLinkClick);
+                    var origin = document.createElement("p");
+                    origin.textContent = item.strArea;
+                    var ItemDiv = document.createElement("div");
+                    ItemDiv.appendChild(image);
+                    ItemDiv.appendChild(mealLink);
+                    ItemDiv.appendChild(origin);
+                    msgObject.appendChild(ItemDiv);
+                }
+            }
+        }
+    //redirects to meal page when meal name clicked
+        function handleMealLinkClick(event) {
+            event.preventDefault();
+            var mealId = event.target.getAttribute("data-mealid");
+            window.location.href = "mealOverview.html?mealId=" + mealId;
+        }
 
-    RequestSessionValidation(getCookieValue("sessionID"));
+        function SendRatedMealsRequest(accountID) {
+            getCookieValue("sessionID");
+            var request = new XMLHttpRequest();
+            request.open("POST", "ratedMealsRequest.php", true);
+            request.setRequestHeader(
+                "Content-Type",
+                "application/x-www-form-urlencoded"
+            );
+            request.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log(this);
+                    var response = this.responseText;
+                    HandleRegistrationResponse(response);
+                }
+            };
+            request.send(
+                "type=ratereturn&accountID=" +
+                    accountID
     
+            );
+            console.log("Request Sent");
+        }
+    
+        function SendRatingData() {
+            var mealID = getCookieValue("mealID");
+            var accountID = getCookieValue("userID");
+            var rating = document.getElementById("rating").value;
+        }
+        function HandleRegistrationResponse(response) {
+            var responseObject = JSON.parse(response);
+            if (responseObject.returnCode == 1) {
+                console.log("Recipe Rated Successfully.");
+            var complete = document.createElement("p");
+                complete.innerText = "Rating saved.";
+                complete.appendChild(complete);
+            } else {
+                console.log(responseObject);
+                console.log("Recipe Rating Failed: " + responseObject.message);
+            }
+        }
+        window.addEventListener('load', function () {
+            RequestSessionValidation(getCookieValue("sessionID"));
+            console.log("session id request send");
+            });
+
     </script>

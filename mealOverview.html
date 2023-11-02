@@ -8,22 +8,23 @@
         <nav>
             <label>Good Eats<label>
             <input type="button" value="Home" onclick="window.location.href='home.html'" />
+            <input type="button" value="Search" onclick="window.location.href='searchMeals.html'" />
             <input type="button" value="New Reciepe" onclick="window.location.href='createRecipe.html'" />
             <input type="button" value="Rankings" onclick="window.location.href='mealRankings.html'" />
-            <input type="button" value="Search" onclick="window.location.href='searchMeals.html'" />
-            <input type="button" value="Users" onclick="window.location.href='searchUsers.html'" />
-            <input type="button" value="Logout" onclick="logoutBtn()" />
+            <input type="button" value="Recommendations" onclick="window.location.href='recommendations.html'" />
+            <input type="button" value="Logout" id="logout" />
         </nav>
         <h1 id="meal_name"></h1>
         <div id="meal_image"></div>
         <div id="origin_category"></div>
         <div id="meal_tags"></div>
+        <div id="rating"></div>
         <div id="meal_instructions"></div>
         <div id="ingredients"></div>
         <div id="video"></div>
-        <form action="ratingRequest.php" method="post">
+        <form action="rateRequest.php" method="post">
         	<label for="rating">Rate this Recipe:</label>
-        <select name="rating" id="rating">
+        <select name="rating" id="ratingSELECT">
         	<option value="1">1</option>
         	<option value="2">2</option>
         	<option value="3">3</option>
@@ -31,9 +32,6 @@
         	<option value="5">5</option>
         </select>
          <input type="button" value="Submit" onclick="SendRatingData()" />
-        </form>
-        <form action = "shareRequest.php" method="post">
-        	<input type="button" value="Share" onclick="SendShareData()" />
         </form>
     </body>
 </html>
@@ -112,7 +110,7 @@
         SendLogoutRequest(getCookieValue("sessionID"));
     }
 
-    function mealDetailRequest(query) {
+    function mealDetailRequestAPI(query) {
         var request = new XMLHttpRequest();
         request.open("POST", "searchRequest.php", true);
         request.setRequestHeader(
@@ -129,6 +127,25 @@
         request.send("type=mealDetails&query=" + query);
         console.log("Meal Details Request Sent");
     }
+
+    function mealDetailRequestDB(query) {
+        var request = new XMLHttpRequest();
+        request.open("POST", "sessionRequest.php", true);
+        request.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleMealResponse(response);
+            }
+        };
+        request.send("type=mealDetails&sessionID=" + query);
+        console.log("Meal Details Request Sent");
+    }
+
     function HandleMealResponse(response) {
         var meal_name = document.getElementById("meal_name");
         var meal_image = document.getElementById("meal_image");
@@ -161,7 +178,7 @@
             for (var i = 1; i <= 20; i++) {
                 var measurement = messageArray["strMeasure" + i];
                 var ingredient = messageArray["strIngredient" + i];
-                if (measurement.trim() !== "" && ingredient.trim() !== "") {
+                if (measurement && ingredient) {
                     var listItem = document.createElement("li");
                     listItem.innerText = measurement + " " + ingredient;
                     ingredientsList.appendChild(listItem);
@@ -187,11 +204,21 @@
             return urlParams.get("mealId");
         }
 
+    function getSourceFromQuery(){
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        return urlParams.get("origin")
+    }
+
     window.addEventListener('load', function () {
             const mealId = getMealIdFromQuery();
-            if (mealId) {
-                mealDetailRequest(mealId);
-            } else {
+            const source = getSourceFromQuery();
+            RequestMealRating(getMealIdFromQuery());
+            if (source == "external") {
+                mealDetailRequestAPI(mealId);
+            } else if (source == "internal") {
+                mealDetailRequestDB(mealId);
+            }else{
                 window.location.href = "home.html";
             }
         });
@@ -222,9 +249,9 @@
     }
 
     function SendRatingData() {
-        var mealID = getMealIdFromQuery();
+        var mealID = getMealIdFromQuery();;
         var accountID = getCookieValue("username");
-        var rating = document.getElementById("rating").value;
+        var rating = document.getElementById("ratingSELECT").value;
         SendRatingRequest(mealID, accountID, rating);
     }
 
@@ -232,56 +259,50 @@
         var responseObject = JSON.parse(response);
         if (responseObject.returnCode == 1) {
             window.alert("Recipe Rated Successfully.");
-	    var complete = document.createElement("p");
-            complete.innerText = "Rating saved.";
-            document.getElementById("completed").appendChild(complete);
+            RequestMealRating(getMealIdFromQuery());
         } else {
             console.log(responseObject);
             window.alert("Error while trying to rate meal.")
             console.log("Recipe Rating Failed: " + responseObject.message);
         }
     }
-    
-        function SendShareRequest(mealID, accountID) {
-            var request = new XMLHttpRequest();
-            request.open("POST", "shareRequest.php", true);
-            request.setRequestHeader(
-                "Content-Type",
-                "application/x-www-form-urlencoded"
+
+    function RequestMealRating(mealID) {
+        var request = new XMLHttpRequest();
+        request.open("POST", "sessionRequest.php", true);
+        request.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
         );
         request.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 console.log(this);
                 var response = this.responseText;
-                HandleShareResponse(response);
+                HandleGetRating(response);
             }
         };
-        request.send(
-            "type=share&accountID=" +
-                accountID +
-                "&mealID=" +
-                mealID
-        );
+        request.send("type=getMealRating&sessionID=" + mealID);
         console.log("Request Sent");
     }
+    
+    function HandleGetRating(response) {
+    var responseObject = JSON.parse(response);
+    var ratingDiv = document.getElementById("rating");
 
-    function SendShareData() {
-        var mealID = getMealIdFromQuery();
-        var accountID = getCookieValue("username");
-        SendShareRequest(mealID, accountID);
-    }
+    if (responseObject.returnCode == 1) {
+        var totalRating = responseObject.message.total_rating;
+        var maxRating = 5;
 
-    function HandleShareResponse(response) {
-        var responseObject = JSON.parse(response);
-        if (responseObject.returnCode == 1) {
-            window.alert("Recipe Shared Successfully.");
-	    var complete = document.createElement("p");
-            complete.innerText = "Rating shared.";
-            document.getElementById("completed").appendChild(complete);
-        } else {
-            console.log(responseObject);
-            window.alert("Error while trying to share meal.")
-            console.log("Recipe Sharing Failed: " + responseObject.message);
-        }
+        var ratingValue = (totalRating / maxRating).toFixed(1);
+
+        var ratingText = document.createElement("p");
+        ratingText.innerText = "Total Rating (out of 5): " + ratingValue;
+        ratingDiv.appendChild(ratingText);
+    } else {
+        var ratingText = document.createElement("p");
+        ratingText.innerText = "Error getting meal rating data.";
+        ratingDiv.appendChild(ratingText);
     }
-</script>
+}
+    
+    </script>
