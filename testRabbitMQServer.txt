@@ -49,8 +49,8 @@ function doRank(){
 	return getRank();
 }
 
-function doReccomend($query){
-  return getRandomUnratedMeal($query);
+function getRating($query){
+  return getMealRating($query);
 }
 
 function requestProcessor($request)
@@ -79,14 +79,14 @@ function requestProcessor($request)
       return doSearchMeals($request['sessionID']);
     case "mealDetails":
       return doMealDetails($request['sessionID']);
-     case "share":
+    case "share":
       return doShare($request['mealID'], $request['accountID']);
-     case "searchUser":
+    case "searchUser":
       return doSearchUser($request['accountID']);
-     case "rank":
+    case "rank":
       return doRank();
-     case "recommend":
-      return doReccomend($request['sessionID']);
+    case "getMealRating":
+      return getRating($request['sessionID']);
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }

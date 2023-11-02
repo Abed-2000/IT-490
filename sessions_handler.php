@@ -247,6 +247,8 @@ function searchMeals($query) {
         $stmt->close();
         $conn->close();
         
+        echo print_r($mealData);
+        
         if ($mealData) {
             return array("returnCode" => 1, "message" => $mealData);
         } else {
@@ -282,30 +284,168 @@ function doShare($mealID, $accountID)
       }
 }
 
-function getRank(){
+function getRank() {
     global $dbHost, $dbUsername, $dbPassword, $dbName;
     $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
 
     if ($conn->connect_error) {
         echo "Error connecting to database: " . $conn->connect_error . PHP_EOL;
         exit(1);
-   }
-   
-   $sql = "SELECT SUM(rating), mealID FROM ratings GROUP BY mealID ORDER BY SUM(rating) DESC";
-   $stmt = $conn->prepare($sql);
-   $stmt->execute();
-   
-   $results = $conn->query($statement);
-   $meals = array()
-      while($row = $results -> fetch_assoc()) {
-	$meals[] = $row;
-      }
-   $stmt->close();
-   $conn->close();
-   if (count($meals) > 0) {
-       return array("returnCode" => 1, "message" => $meals);
-   } else {
-       return array("returnCode" => 0, "message" => "No rankings found.");
-   }
+    }
+
+    $sql = "SELECT SUM(r.rating) as totalRating, r.mealID, cm.strMealThumb, cm.strMeal, cm.id AS idMeal
+            FROM ratings r
+            JOIN custom_meals cm ON r.mealID = cm.id
+            GROUP BY r.mealID
+            ORDER BY totalRating DESC
+            LIMIT 5";
+
+    if ($stmt = $conn->prepare($sql)) {
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $meals = array();
+
+        while ($row = $result->fetch_assoc()) {
+            $meals[] = $row;
+        }
+
+        $stmt->close();
+        $conn->close();
+
+        if (count($meals) > 0) {
+            return array("returnCode" => 1, "message" => $meals);
+        } else {
+            return array("returnCode" => 0, "message" => "No rankings found.");
+        }
+    } else {
+        echo "Error in SQL query: " . $conn->error . PHP_EOL;
+        return array("returnCode" => -1, "message" => "SQL error.");
+    }
+}
+
+function getMealRating($mealID) {
+    global $dbHost, $dbUsername, $dbPassword, $dbName;
+    
+    $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
+
+    if ($conn->connect_error) {
+        echo "Error connecting to the database: " . $conn->connect_error;
+        exit(1);
+    }
+
+    $sql = "SELECT SUM(rating) as total_rating FROM ratings WHERE mealid = ?";
+    $stmt = $conn->prepare($sql);
+
+    if ($stmt === false) {
+        echo "Error preparing the SQL statement: " . $conn->error;
+        exit(1);
+    }
+
+    $stmt->bind_param("s", $mealID);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+
+    $ratingData = $result->fetch_assoc();
+
+    $stmt->close();
+    $conn->close();
+
+    if ($ratingData) {
+        return array("returnCode" => 1, "message" => $ratingData);
+    } else {
+        return array("returnCode" => 0, "message" => "No rating data found.");
+    }
+}
+function getRandomUnratedMeal($username) {
+    global $dbHost, $dbUsername, $dbPassword, $dbName;
+    $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
+    
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    $query = "SELECT mealID, rating FROM ratings WHERE accountID = ? AND rating >= 3";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $ratedMeals = [];
+    while ($row = $result->fetch_assoc()) {
+        $ratedMeals[$row['mealID']] = $row['rating'];
+    }
+
+    $categoriesAndAreas = [];
+    foreach ($ratedMeals as $mealID => $rating) {
+        $query = "SELECT strCategory, strArea FROM custom_meals WHERE id = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("i", $mealID);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $categoriesAndAreas[] = [
+                'strCategory' => $row['strCategory'],
+                'strArea' => $row['strArea'],
+            ];
+        } else {
+            $apiUrl = "https://www.themealdb.com/api/json/v1/1/lookup.php?i={$mealID}";
+            $apiData = file_get_contents($apiUrl);
+            $apiData = json_decode($apiData, true);
+            if ($apiData['meals'][0]) {
+                $categoriesAndAreas[] = [
+                    'strCategory' => $apiData['meals'][0]['strCategory'],
+                    'strArea' => $apiData['meals'][0]['strArea'],
+                ];
+            }
+        }
+    }
+
+    $uniqueCategoriesAndAreas = array_unique($categoriesAndAreas, SORT_REGULAR);
+
+    $randomCategoryArea = $uniqueCategoriesAndAreas[array_rand($uniqueCategoriesAndAreas)];
+
+    $apiCategoryEndpoint = "https://www.themealdb.com/api/json/v1/1/filter.php?c=" . urlencode($randomCategoryArea['strCategory']);
+    $apiAreaEndpoint = "https://www.themealdb.com/api/json/v1/1/filter.php?a=" . urlencode($randomCategoryArea['strArea']);
+    
+    $apiCategoryData = file_get_contents($apiCategoryEndpoint);
+    $apiAreaData = file_get_contents($apiAreaEndpoint);
+    
+    $categoryMeals = json_decode($apiCategoryData, true)['meals'];
+    $areaMeals = json_decode($apiAreaData, true)['meals'];
+    
+    if (!empty($categoryMeals) && !empty($areaMeals)) {
+        $overlappingMealIDs = array_column($categoryMeals, 'idMeal');
+        
+        foreach ($overlappingMealIDs as $mealID) {
+            if (!array_key_exists($mealID, $ratedMeals)) {
+                $apiUrl = "https://www.themealdb.com/api/json/v1/1/lookup.php?i={$mealID}";
+                $apiData = file_get_contents($apiUrl);
+                $apiData = json_decode($apiData, true);
+                if ($apiData['meals'][0]) {
+                    $randomUnratedMeal = $apiData['meals'][0];
+                    break;
+                }
+            }
+        }
+    }
+    
+    if (empty($overlappingMeals) || !isset($randomUnratedMeal)) {
+        $apiRandomCategoryEndpoint = "https://www.themealdb.com/api/json/v1/1/filter.php?c=" . urlencode($randomCategoryArea['strCategory']);
+        $apiRandomCategoryData = file_get_contents($apiRandomCategoryEndpoint);
+        $randomCategoryMeals = json_decode($apiRandomCategoryData, true)['meals'];
+        
+        $unratedCategoryMeals = array_filter($randomCategoryMeals, function ($meal) use ($ratedMeals) {
+            return !array_key_exists($meal['idMeal'], $ratedMeals);
+        });
+        
+        $randomUnratedMeal = $unratedCategoryMeals[array_rand($unratedCategoryMeals)];
+    }
+
+    $conn->close();
+
+    return $randomUnratedMeal;
 }
 ?>

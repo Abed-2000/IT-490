@@ -21,18 +21,18 @@
         <div id="meal_instructions"></div>
         <div id="ingredients"></div>
         <div id="video"></div>
-        <form action="rateRequest.php" method="post">
+        <form action="ratingRequest.php" method="post">
         	<label for="rating">Rate this Recipe:</label>
         <select name="rating" id="rating">
-        	<option value=1>1</option>
-        	<option value=2>2</option>
-        	<option value=3>3</option>
-        	<option value=4>4</option>
-        	<option value=5>5</option>
+        	<option value="1">1</option>
+        	<option value="2">2</option>
+        	<option value="3">3</option>
+        	<option value="4">4</option>
+        	<option value="5">5</option>
         </select>
          <input type="button" value="Submit" onclick="SendRatingData()" />
         </form>
-        <form action = shareRequest.php" method="post">
+        <form action = "shareRequest.php" method="post">
         	<input type="button" value="Share" onclick="SendShareData()" />
         </form>
     </body>
