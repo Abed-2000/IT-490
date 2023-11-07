@@ -1,5 +1,6 @@
 <?php
 require_once('sessions_handler.php');
+require_once('log_maker.php');
 
 class loginDB
 {
@@ -11,10 +12,10 @@ public function __construct()
 
 	if ($this->logindb->connect_errno != 0)
 	{
-		echo "Error connecting to database: ".$this->logindb->connect_error.PHP_EOL;
+		log_this("Error connecting to database: ".$this->logindb->connect_error.PHP_EOL);
 		exit(1);
 	}
-	echo "correctly connected to database".PHP_EOL;
+	log_this("correctly connected to database".PHP_EOL);
 }
 
 public function validateLogin($username,$password)

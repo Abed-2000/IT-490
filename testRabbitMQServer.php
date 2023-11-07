@@ -50,9 +50,9 @@ function doMealDetails($query){
   return mealDetails($query);
 }
 
-function doRank(){
-	return getRank();
-}
+//function doRank(){
+	//return getRank();
+//}
 
 function requestProcessor($request)
 {
@@ -87,9 +87,9 @@ function requestProcessor($request)
      case "rank":
       return doRank();
   }
-    case "top10":
-      return doRank($request['sessionID']);
-  }
+    //case "top10":
+      //return doRank($request['sessionID']);
+  //}
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }
 

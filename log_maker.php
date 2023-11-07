@@ -11,11 +11,16 @@ function log_this($log_msg)
         mkdir($log_filename, 0777, true);
     }
     $log_file_data = $log_filename . '.log';
-    file_put_contents($log_file_data, $log_time. "\n" .$log_msg . "\n\n", FILE_APPEND);
 
-    $client = new rabbitMQClient('testRabbitMQ.ini','logger');
-    $publish = file_put_contents($log_file_data, $log_time. "\n" .$log_msg . "\n\n");
 
-    $subscribe = file_put_contents($publish, FILE_APPEND);
+    $client = new rabbitMQClient("testRabbitMQ.ini", "logger");
+    $response = $client->publish($log_msg);
+
+    $reply = $client->subscribe("hi");
+    file_put_contents($log_file_data, $log_time. "\n" . $response. "\n\n", FILE_APPEND);
+
+
+    echo $response . "space" . $reply;
+
 }
 ?>

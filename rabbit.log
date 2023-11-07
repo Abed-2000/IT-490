@@ -1,12 +1,93 @@
-10-28-2023 02:29:09pm
-error: rabbitMQServer: process_message: exception caught: mysqli_sql_exception: php_network_getaddresses: getaddrinfo for 1270.1 failed: Name or service not known in /home/admin/IT-490/login.php.inc:10
-Stack trace:
-#0 /home/admin/IT-490/login.php.inc(10): mysqli->__construct()
-#1 /home/admin/IT-490/testRabbitMQServer.php(14): loginDB->__construct()
-#2 /home/admin/IT-490/testRabbitMQServer.php(46): doLogin()
-#3 /home/admin/IT-490/rabbitMQLib.inc(59): requestProcessor()
-#4 [internal function]: rabbitMQServer->process_message()
-#5 /home/admin/IT-490/rabbitMQLib.inc(123): AMQPQueue->consume()
-#6 /home/admin/IT-490/testRabbitMQServer.php(66): rabbitMQServer->process_requests()
-#7 {main}
+11-02-2023 03:05:09pm
+1
+
+11-02-2023 03:05:47pm
+1
+
+11-02-2023 03:11:43pm
+1
+
+11-02-2023 03:15:18pm
+1
+
+11-02-2023 03:16:44pm
+1
+
+11-02-2023 03:16:45pm
+1
+
+11-02-2023 03:24:46pm
+1
+
+11-02-2023 03:24:50pm
+1
+
+11-02-2023 03:26:34pm
+1
+
+11-02-2023 03:26:39pm
+1
+
+11-02-2023 03:27:18pm
+1
+
+11-02-2023 03:40:45pm
+1
+
+11-02-2023 03:41:39pm
+1
+
+11-02-2023 03:41:39pm
+1
+
+11-02-2023 03:41:39pm
+1
+
+11-02-2023 03:44:02pm
+1
+
+11-02-2023 03:44:02pm
+1
+
+11-02-2023 03:44:02pm
+1
+
+11-02-2023 03:50:51pm
+1
+
+11-02-2023 03:51:40pm
+1
+
+11-02-2023 03:51:40pm
+1
+
+11-02-2023 03:51:40pm
+1
+
+11-02-2023 03:51:47pm
+1
+
+11-02-2023 03:53:55pm
+1
+
+11-02-2023 03:53:56pm
+1
+
+11-02-2023 03:53:56pm
+1
+
+11-02-2023 03:57:56pm
+1
+
+11-02-2023 03:57:56pm
+1
+
+11-02-2023 03:57:56pm
+1
+
+11-02-2023 06:26:04pm
+1
+
+11-02-2023 06:33:08pm
+1
 

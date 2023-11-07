@@ -290,7 +290,7 @@ function getRank(){
         echo "Error connecting to database: " . $conn->connect_error . PHP_EOL;
         exit(1);
    }
-   
+   /*
    $sql = "SELECT SUM(rating), mealID FROM ratings GROUP BY mealID ORDER BY SUM(rating) DESC";
    $stmt = $conn->prepare($sql);
    $stmt->execute();
@@ -306,6 +306,6 @@ function getRank(){
        return array("returnCode" => 1, "message" => $meals);
    } else {
        return array("returnCode" => 0, "message" => "No rankings found.");
-   }
+   }*/
 }
 ?>

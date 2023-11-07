@@ -259,13 +259,16 @@ class rabbitMQClient
 			$this->conn_queue->setName($this->queue);
 			$this->conn_queue->bind($exchange->getName(),$this->routing_key);
 			return $exchange->publish($json_message,$this->routing_key);
+			
 		}
 		catch(Exception $e)
 		{
 			die("failed to send message to exchange: ". $e->getMessage()."\n");
 		}
 	}
-	function subscribe($message)
+
+
+	function subscribe($msg)
 	{
 		try
 		{
@@ -284,7 +287,9 @@ class rabbitMQClient
 			$this->conn_queue = new AMQPQueue($channel);
 			$this->conn_queue->setName($this->queue);
 			$this->conn_queue->bind($exchange->getName(),$this->routing_key);
-			return $exchange->publish($json_message,$this->routing_key);
+
+			//$this-> conn_queue -> consume(array($this,'process_response'));
+
 		}
 		catch(Exception $e)
 		{
