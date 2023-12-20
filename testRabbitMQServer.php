@@ -53,6 +53,16 @@ function doReccomend($query){
   return getRandomUnratedMeal($query);
 }
 
+function doShare($mealID, $accountID){
+   return profileShare($mealID, $accountID);
+}
+function doUnshare($mealID, $accountID){
+	return profileUnshare($mealID, $accountID);
+}
+function returnShares($accountID){
+	return getShares($accountID);
+}
+
 function requestProcessor($request)
 {
   echo "received request".PHP_EOL;
@@ -81,12 +91,16 @@ function requestProcessor($request)
       return doMealDetails($request['sessionID']);
      case "share":
       return doShare($request['mealID'], $request['accountID']);
+    case "unshare":
+      return doUnshare($request['mealID'], $request['accountID']);  
      case "searchUser":
       return doSearchUser($request['accountID']);
      case "rank":
       return doRank();
      case "recommend":
       return doReccomend($request['sessionID']);
+    case "returnShares":
+      return doGetShares($request['accountID']);
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }

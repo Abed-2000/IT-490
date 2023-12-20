@@ -20,7 +20,8 @@ public function __construct()
 public function validateLogin($username,$password)
 {
 	$un = $this->logindb->real_escape_string($username);
-	$pw = $this->logindb->real_escape_string($password);
+	$encrypted_password = hash('sha256', $password);
+	$pw = $this->logindb->real_escape_string($encrypted_password);
 	$statement = "select * from users where Username = '$un'";
 	$response = $this->logindb->query($statement);
 
@@ -46,7 +47,8 @@ public function validateLogin($username,$password)
 public function createUser($username, $password, $email)
 {
 	$un = $this->logindb->real_escape_string($username);
-	$pw = $this->logindb->real_escape_string($password);
+	$encrypted_password = hash('sha256', $password);
+	$pw = $this->logindb->real_escape_string($encrypted_password);
 	$em = $this->logindb->real_escape_string($email);
 	$statement = "select * from users where Username = '$un'";
 	$results = $this->logindb->query($statement);

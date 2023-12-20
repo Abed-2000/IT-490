@@ -255,7 +255,7 @@ function searchMeals($query) {
             return array("returnCode" => 0, "message" => "Meal not found in the database.");
         }
     }
-function doShare($mealID, $accountID)
+function profileShare($mealID, $accountID)
 {
     global $dbHost, $dbUsername, $dbPassword, $dbName;
     $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
@@ -271,6 +271,7 @@ function doShare($mealID, $accountID)
 
     if($results->num_rows > 0){
       $createSave = "INSERT INTO user_saves (mealID,userID) VALUES ('$mid', '$aid')";
+      $createSave->execute();
       if($conn->query($createSave)){
       	 echo "new save made".PHP_EOL;
                 return array('returnCode' => 1, 'message' => 'Recipe Save Saved');
@@ -282,6 +283,60 @@ function doShare($mealID, $accountID)
       	echo "already saved".PHP_EOL;
       		return array('returnCode' =>0, 'message' => 'Already saved.');
       }
+}
+function profileUnshare($mealID, $accountID)
+{
+    global $dbHost, $dbUsername, $dbPassword, $dbName;
+    $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
+
+    if ($conn->connect_error) {
+        echo "Error connecting to database: " . $conn->connect_error . PHP_EOL;
+        exit(1);
+    }
+    $mid = $conn->real_escape_string($mealID);
+    $aid = $conn->real_escape_string($accountID);
+    $stmt = "DELETE * FROM user_saves WHERE mealID = '$mid' AND userID = '$aid'";
+    $stmt->execute(0;
+    $results = $conn->query($statement);
+      	 echo "new deletion made".PHP_EOL;
+                return array('returnCode' => 1, 'message' => 'Recipe Deleted');
+            }else{
+                return array('returnCode' => 0, 'message' => 'Unable to Delete Recipe Save.');
+            }
+      }
+}
+function getShares($accountID)
+{
+    global $dbHost, $dbUsername, $dbPassword, $dbName;
+    $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
+
+    if ($conn->connect_error) {
+        echo "Error connecting to database: " . $conn->connect_error . PHP_EOL;
+        exit(1);
+    }
+    $aid = $conn->real_escape_string($accountID);
+    $stmt = "SELECT mealID FROM user_saves WHERE userID = '$aid'";
+    if ($sql = $conn->prepare($sql)) {
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $meals = array();
+
+        while ($row = $result->fetch_assoc()) {
+            $meals[] = $row;
+        }
+
+        $stmt->close();
+        $conn->close();
+
+        if (count($meals) > 0) {
+            return array("returnCode" => 1, "message" => $meals);
+        } else {
+            return array("returnCode" => 1, "message" => "No saves found.");
+        }
+    } else {
+        echo "Error in SQL query: " . $conn->error . PHP_EOL;
+        return array("returnCode" => 0, "message" => "SQL error.");
+    }
 }
 
 function getRank() {

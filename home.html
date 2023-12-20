@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
             <link rel="stylesheet" href="styles.css">
             <title>Home | Good Eats</title>
     </head>
@@ -103,14 +104,14 @@
     
     //gets meal id from user input CHANGE TO FROM DB
         function getRecipes(){
-            var searchKeywords = document.getElementById("mealKeyword").value;
+            var AccountID = getCookievalue("username");
             RequestSessionValidation(getCookieValue("sessionID"));
-            searchRequest(searchKeywords);
+            searchRequest(AccountID);
         }
     //sends request of query to rabbit
         function searchRequest(query) {
             var request = new XMLHttpRequest();
-            request.open("POST", "searchRequest.php", true);
+            request.open("POST", "mealIDRequest.php", true);
             request.setRequestHeader(
                 "Content-Type",
                 "application/x-www-form-urlencoded"
@@ -119,13 +120,22 @@
                 if (this.readyState == 4 && this.status == 200) {
                     console.log(this);
                     var response = this.responseText;
-                    HandleSearchResponse(response);
+                    HandleSearchRequestResponse(response);
                 }
             };
-            request.send("type=searchMeals&query=" + query);
+            request.send("type=returnShares&query=" + query);
             console.log("Search Request Sent");
         }
     //returns meal date for meal id, places into div 
+        function HandleSearchRequestResponse(response){
+         if (responseObject.returnCode == 1) {
+            var messageArray = responseObject.message;
+            for (var i=0; i < messageArray.length; i++){
+            	getAPISearch(messageArray[i]);
+           }
+        }
+	}
+	
         function HandleSearchResponse(response) {
             var msgObject = document.getElementById("api_content");
             msgObject.innerHTML = "";
@@ -158,49 +168,98 @@
             window.location.href = "mealOverview.html?mealId=" + mealId;
         }
 
-        function SendRatedMealsRequest(accountID) {
-            getCookieValue("sessionID");
-            var request = new XMLHttpRequest();
-            request.open("POST", "ratedMealsRequest.php", true);
-            request.setRequestHeader(
-                "Content-Type",
-                "application/x-www-form-urlencoded"
-            );
-            request.onreadystatechange = function () {
-                if (this.readyState == 4 && this.status == 200) {
-                    console.log(this);
-                    var response = this.responseText;
-                    HandleRegistrationResponse(response);
-                }
-            };
-            request.send(
-                "type=ratereturn&accountID=" +
-                    accountID
-    
-            );
-            console.log("Request Sent");
-        }
-    
-        function SendRatingData() {
-            var mealID = getCookieValue("mealID");
-            var accountID = getCookieValue("userID");
-            var rating = document.getElementById("rating").value;
-        }
-        function HandleRegistrationResponse(response) {
-            var responseObject = JSON.parse(response);
-            if (responseObject.returnCode == 1) {
-                console.log("Recipe Rated Successfully.");
-            var complete = document.createElement("p");
-                complete.innerText = "Rating saved.";
-                complete.appendChild(complete);
-            } else {
-                console.log(responseObject);
-                console.log("Recipe Rating Failed: " + responseObject.message);
+
+
+function APISearchRequest(query){
+        var request = new XMLHttpRequest();
+        request.open("POST", "apiSearchRequest.php", true);
+        request.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleAPISearchResponse(response);
+            }
+        };
+        request.send("type=searchMealID&query=" + query);
+        console.log("Search Request Sent");
+    }
+    function HandleAPISearchResponse(response) {
+        var msgObject = document.getElementById("api_content");
+        msgObject.innerHTML = "";
+        var responseObject = JSON.parse(response);
+        if (responseObject.returnCode == 1) {
+            var messageArray = responseObject.message;
+            for (var i=0; i < messageArray.length; i++){
+                var item = messageArray[i];
+                var image = document.createElement("img");
+                image.src = item.strMealThumb;
+                var mealLink = document.createElement("a");
+                mealLink.href = "#";
+                mealLink.innerText = item.strMeal;
+                mealLink.setAttribute("data-mealid", item.idMeal);
+                mealLink.setAttribute("data-source", "external");
+                mealLink.addEventListener("click", handleMealLinkClick);
+                var origin = document.createElement("p");
+                origin.textContent = item.strArea;
+                var ItemDiv = document.createElement("div");
+                ItemDiv.appendChild(image);
+                ItemDiv.appendChild(mealLink);
+                ItemDiv.appendChild(origin);
+                msgObject.appendChild(ItemDiv);
             }
         }
-        window.addEventListener('load', function () {
-            RequestSessionValidation(getCookieValue("sessionID"));
-            console.log("session id request send");
-            });
+    }
+
+function DBSearchRequest(query){
+        var request = new XMLHttpRequest();
+        request.open("POST", "dbSearchRequest.php", true);
+        request.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+        );
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this);
+                var response = this.responseText;
+                HandleDBSearchResponse(response);
+            }
+        };
+        request.send("type=searchMealID&query=" + query);
+        console.log("Search Request Sent");
+} 
+
+
+
+        function HandleDBSearchResponse(response, source) {
+    var msgObject = document.getElementById("api_content");
+    var responseObject = JSON.parse(response);
+    if (responseObject.returnCode == 1) {
+        var messageArray = responseObject.message;
+        messageArray.forEach(function (item) {
+            var image = document.createElement("img");
+            image.src = item.strMealThumb;
+
+            var mealLink = document.createElement("a");
+            mealLink.href = "#";
+            mealLink.innerText = item.strMeal;
+            mealLink.setAttribute("data-mealid", item.id);
+            mealLink.setAttribute("data-source", "internal");
+            mealLink.addEventListener("click", handleMealLinkClick);
+            var origin = document.createElement("p");
+            origin.textContent = item.strArea;
+            var itemDiv = document.createElement("div");
+            itemDiv.appendChild(image);
+            itemDiv.appendChild(mealLink);
+            itemDiv.appendChild(origin);
+
+            msgObject.appendChild(itemDiv);
+        });
+        }
+}       
+            
 
     </script>
