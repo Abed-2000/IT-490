@@ -583,4 +583,76 @@ function getRandomUnratedMeal($username) {
 
     return $randomUnratedMeal;
 }
+
+function saveComment($mealID, $username, $content)
+{
+    global $dbHost, $dbUsername, $dbPassword, $dbName;
+
+    $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
+
+    if ($conn->connect_error) {
+        return array("returnCode" => 0, "message" => "Error connecting to the database: " . $conn->connect_error);
+    }
+
+    $sql = "INSERT INTO discussion (MealID, Username, PostDate, Content) VALUES (?, ?, NOW(), ?)";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sss", $mealID, $username, $content);
+
+    if ($stmt->execute()) {
+        $stmt->close();
+        $conn->close();
+        return array("returnCode" => 1, "message" => "Comment added successfully.");
+    } else {
+        $stmt->close();
+        $conn->close();
+        return array("returnCode" => 0, "message" => "Error: " . $sql . "<br>" . $conn->error);
+    }
+}
+
+function getComments($mealID)
+{
+    global $dbHost, $dbUsername, $dbPassword, $dbName;
+
+    $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
+
+    if ($conn->connect_error) {
+        return array("returnCode" => 0, "message" => "Error connecting to the database: " . $conn->connect_error);
+    }
+
+    $sql = "SELECT Username, PostDate, Content FROM discussion WHERE MealID = ?";
+    
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $mealID);
+    
+    $stmt->execute();
+    if ($stmt->error) {
+        error_log("SQL error: " . $stmt->error);
+        return array("returnCode" => 0, "message" => "SQL error: " . $stmt->error);
+    }
+
+    $result = $stmt->get_result();
+    if (!$result) {
+        error_log("No result obtained from the query.");
+        return array("returnCode" => 0, "message" => "No result obtained from the query.");
+    }
+    
+    $comments = array();
+    
+    while ($row = $result->fetch_assoc()) {
+        $comments[] = array(
+            "username" => $row['Username'],
+            "postDate" => $row['PostDate'],
+            "content" => $row['Content']
+        );
+    }
+    
+    $stmt->close();
+    $conn->close();
+    
+    return array("returnCode" => 1, "comments" => $comments);
+}
+
+
+
 ?>

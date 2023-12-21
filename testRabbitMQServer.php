@@ -72,6 +72,13 @@ function doTwoFactorAuthenticate($userId, $authCode){
 function doReccomend($query){
   return getRandomUnratedMeal($query);
 }
+function doSaveComment($mealID, $username, $content){
+  return saveComment($mealID, $username, $content);
+}
+
+function doGetComment($mealID){
+  return getComments($mealID);
+}
 
 function requestProcessor($request)
 {
@@ -113,8 +120,12 @@ function requestProcessor($request)
       return doEmailAuthCode($request['userId']);
     case "authTwoFactor":
       return doTwoFactorAuthenticate($request['userId'], $request['authCode']);
-      case "recommend":
+    case "recommend":
         return doReccomend($request['sessionID']);
+    case "sendComments":
+        return doSaveComment($request['mealID'], $request['username'], $request['content']);
+    case "getComments":
+        return doGetComment($request['mealID']);
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }

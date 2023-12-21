@@ -86,6 +86,12 @@ CREATE TABLE IF NOT EXISTS twoFactorAuth (
 );
 COMMIT;
 
+CREATE TABLE IF NOT EXISTS discussion(
+    MealID VARCHAR(255) NOT NULL,
+    Username VARCHAR(255) NOT NULL,
+    PostDate TIMESTAMP NOT NULL,
+    Content TEXT NOT NULL
+);
 /*
 Creating Test User Account
 

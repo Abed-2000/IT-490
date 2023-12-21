@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
@@ -55,6 +56,17 @@
         </select>
          <input type="button" value="Submit" onclick="SendRatingData()" />
         </form>
+        <div id="comments-section">
+        <form id="comment-form">
+            <div class="form-group">
+                <label for="comment">Join the Discussion:</label>
+                <textarea class="form-control" id="comment" name="comment" rows="3" placeholder="Enter your comments here" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+        <div id="comments-list">
+        </div>
+        </div>
     </body>
 </html>
 
@@ -314,5 +326,78 @@
     ratingDiv.innerText = "Rating: " + rating;
     }
 
+    document.getElementById('comment-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            let commentText = document.getElementById('comment').value;
+            let commenterName = getCookieValue("username");
+            let commentsList = document.getElementById('comments-list');
+            let commentDiv = document.createElement('div');
+            let mealID = getMealIdFromQuery();
+            console.log(mealID);
+            sendComment(mealID, commenterName, commentText);
+            commentDiv.classList.add('comment');
+            commentDiv.innerHTML = '<p><strong>' + commenterName + ':</strong> <p>' + commentText + '</p><span class="comment-date">' + new Date().toLocaleString() + '</span>';
+            commentsList.appendChild(commentDiv);
+            document.getElementById('comment').value = '';
+        });
+    
+        function requestComments(mealID) {
+            var request = new XMLHttpRequest();
+            request.open("POST", "commentsRequest.php", true);
+            request.setRequestHeader(
+                "Content-Type",
+                "application/x-www-form-urlencoded"
+            );
+            request.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log(this);
+                    var response = this.responseText;
+                    HandleGetComments(response);
+                }
+            };
+            request.send("type=getComments&mealID=" + mealID);
+            console.log("Comments Request Sent");
+        }
+
+        function sendComment(mealID, username, content) {
+            var request = new XMLHttpRequest();
+            request.open("POST", "commentsRequest.php", true);
+            request.setRequestHeader(
+                "Content-Type",
+                "application/x-www-form-urlencoded"
+            );
+            request.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log(this);
+                    var response = this.responseText;
+                    HandleSendComments(response);
+                }
+            };
+            request.send("type=sendComments&mealID=" + mealID + "&username=" + username + "&content=" + content);
+            console.log("Comments Request Sent");
+        }
+
+    function HandleGetComments(response) {
+        var responseObject = JSON.parse(response);
+        if (responseObject.returnCode === 1) {
+            let comments = responseObject.comments;
+            let commentsList = document.getElementById('comments-list');
+            if (comments.length > 0) {
+                comments.forEach(function(comment) {
+                    let commentDiv = document.createElement('div');
+                    commentDiv.classList.add('comment');
+                    commentDiv.innerHTML = '<p><strong>' + comment.username + ':</strong> <p>' + comment.content + '</p><span class="comment-date">' + comment.postDate + '</span>';
+                    commentsList.appendChild(commentDiv);
+                });
+            }
+        }
+    }
+    function HandleSendComments(response){
+        var responseObject = JSON.parse(response);
+        if (responseObject.returnCode == 1) {
+            window.alert("Comment Successfully Added.");
+        }
+    }
+    requestComments(getMealIdFromQuery());
     
     </script>
