@@ -59,15 +59,26 @@ function SendLoginRequest(username, password) {
     function HandleLoginResponse(response) {
         var responseObject = JSON.parse(response);
         if (responseObject.returnCode == 1) {
-            console.log("Login Successful.");
             document.cookie =
                 "sessionID=" + responseObject.sessionID + "; SameSite=Lax";
             document.cookie =
                 "username=" +
-                document.getElementById("username").value +
+            document.getElementById("username").value +
                 "; SameSite=Lax";
+            document.cookie = 
+                "UserID=" + responseObject.userID + "; SameSite=Lax";
             location.href = "home.html";
-        } else {
+        } else if(responseObject.returnCode == 2){
+            document.cookie =
+                "sessionID=" + responseObject.sessionID + "; SameSite=Lax";
+            document.cookie =
+                "username=" +
+            document.getElementById("username").value +
+                "; SameSite=Lax";
+            document.cookie = 
+                "UserID=" + responseObject.userID + "; SameSite=Lax";
+            location.href = "twoFactorAuthenticate.html";
+        }else{
             console.log(responseObject);
             console.log("Login Failed: " + responseObject.message);
         }

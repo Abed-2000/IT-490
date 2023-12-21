@@ -8,7 +8,7 @@
         <form action="registrationRequest.php" method="post">
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required /><br /><br />
-
+            
             <label for="username">Username:</label>
             <input
                 type="text"
@@ -32,7 +32,8 @@
                 name="verifyPassword"
                 required
             /><br /><br />
-
+            <input type="checkbox" id="2fa" name="2fa" checked>Use Two-Factor Authentication</input>
+            <br /><br />
             <input type="button" value="Register" onclick="SendRegistrationData()" />
         </form>
         <p>Already have an account? <a href="index.html">Click here.</a></p>
@@ -40,7 +41,7 @@
 </html>
 
 <script>
-    function SendRegistrationRequest(username, password, email) {
+    function SendRegistrationRequest(username, password, email, twoFactor) {
         var request = new XMLHttpRequest();
         request.open("POST", "registrationRequest.php", true);
         request.setRequestHeader(
@@ -60,7 +61,9 @@
                 "&password=" +
                 password +
                 "&email=" +
-                email
+                email +
+                "&twoFactor=" +
+                twoFactor
         );
         console.log("Request Sent");
     }
@@ -70,9 +73,16 @@
         var password = document.getElementById("password").value;
         var verifyPassword = document.getElementById("verifyPassword").value;
         var email = document.getElementById("email").value;
+        var twoFactor = document.getElementById("2fa").checked;
+        var authReq = ""
+        if (twoFactor == true){
+            authReq = "enabled";
+        }else{
+            authReq = "disabled";
+        }
 
         if (verifyPassword === password) {
-            SendRegistrationRequest(username, password, email);
+            SendRegistrationRequest(username, password, email, authReq);
         } else {
             window.alert("Passwords do not match.");
         }

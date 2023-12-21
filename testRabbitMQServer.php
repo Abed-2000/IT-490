@@ -15,10 +15,10 @@ function doLogin($username,$password)
     //return false if not valid
 }
 
-function doCreateUser($username, $password, $email)
+function doCreateUser($username, $password, $email, $twoFactor)
 {
   $login = new loginDB();
-  return $login->createUser($username, $password, $email);
+  return $login->createUser($username, $password, $email, $twoFactor);
 }
 
 function doValidate($sessionID)
@@ -53,6 +53,14 @@ function getRating($query){
   return getMealRating($query);
 }
 
+function validate2step($username, $authCode){
+  return validateAuthentication($username, $authCode);
+}
+
+function doValidateAuthLife($userId){
+  return validateAuthLife($userId);
+}
+
 function requestProcessor($request)
 {
   echo "received request".PHP_EOL;
@@ -68,7 +76,7 @@ function requestProcessor($request)
     case "validate_session":
       return doValidate($request['sessionID']);
     case "register":
-      return doCreateUser($request['username'], $request['password'], $request['email']);
+      return doCreateUser($request['username'], $request['password'], $request['email'], $request['twoFactor']);
     case "logout":
       return doLogout($request['sessionID']);
     case "rate":
@@ -87,6 +95,8 @@ function requestProcessor($request)
       return doRank();
     case "getMealRating":
       return getRating($request['sessionID']);
+    case "checkAuthLife":
+      return doValidateAuthLife($request['userId']);
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }

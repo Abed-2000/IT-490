@@ -213,7 +213,6 @@
     window.addEventListener('load', function () {
             const mealId = getMealIdFromQuery();
             const source = getSourceFromQuery();
-            RequestMealRating(getMealIdFromQuery());
             if (source == "external") {
                 mealDetailRequestAPI(mealId);
             } else if (source == "internal") {
@@ -288,21 +287,9 @@
     function HandleGetRating(response) {
     var responseObject = JSON.parse(response);
     var ratingDiv = document.getElementById("rating");
-
-    if (responseObject.returnCode == 1) {
-        var totalRating = responseObject.message.total_rating;
-        var maxRating = 5;
-
-        var ratingValue = (totalRating / maxRating).toFixed(1);
-
-        var ratingText = document.createElement("p");
-        ratingText.innerText = "Total Rating (out of 5): " + ratingValue;
-        ratingDiv.appendChild(ratingText);
-    } else {
-        var ratingText = document.createElement("p");
-        ratingText.innerText = "Error getting meal rating data.";
-        ratingDiv.appendChild(ratingText);
+    var rating = document.getElementById("ratingSELECT").value;
+    ratingDiv.innerText = "Rating: " + rating;
     }
-}
+
     
     </script>

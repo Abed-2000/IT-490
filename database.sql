@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS users (
     UserId INT AUTO_INCREMENT PRIMARY KEY,
     Username VARCHAR(255) NOT NULL,
     Password VARCHAR(255) NOT NULL,
-    Email VARCHAR(255) NOT NULL
+    Email VARCHAR(255) NOT NULL,
+    2FA VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS sessions (
@@ -31,7 +32,7 @@ CREATE TABLE IF NOT EXISTS custom_meals (
     strMealThumb VARCHAR(255),
     strTags VARCHAR(255),
     strYoutube VARCHAR(255),
-    created_by VARCHAR(255) NOT NULL DEFAULT 'DefaultUsername'
+    created_by VARCHAR(255) NOT NULL DEFAULT 'DefaultUsername',
     datePublished DATE,
     strIngredient VARCHAR(255),
     strMeasure VARCHAR(255),
@@ -77,6 +78,12 @@ CREATE TABLE IF NOT EXISTS custom_meals (
     strMeasure20 VARCHAR(255)
 );
 
+CREATE TABLE IF NOT EXISTS twoFactorAuth (
+    UserId INT PRIMARY KEY,
+    Email VARCHAR(255) NOT NULL,
+    LastAuthDateTime TIMESTAMP NOT NULL,
+    PassString VARCHAR(255) NOT NULL
+);
 COMMIT;
 
 /*

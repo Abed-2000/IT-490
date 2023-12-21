@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Two-Factor Authentication</title>
+</head>
+<body>
+    <h1>Good Eats | User Authentication</h1>
+    <br />
+    <p>We just want to make sure that you are who you say you are.</p>
+    <p>Check the email that you used to create your account.</p>
+    <p>We've sent you a code.</p>
+
+    <form id="authForm">
+        <input type="text" id="authCodeInput" placeholder="Enter verification code">
+        <br /><br />
+        <input type="button" value="Authenticate" onclick="authenticate()">
+        <br /><br />
+        <p id="resendTimer"></p>
+    </form>
+
+    <script>
+        var cooldownTime = 30;
+        var resendTimerDisplay = document.getElementById('resendTimer');
+
+        function authenticate() {
+            var authCode = document.getElementById('authCodeInput').value;
+
+            // Perform authentication logic here (send to backend, validate, etc.)
+            console.log('Entered verification code:', authCode);
+
+            // You can add further logic here based on the authentication result
+        }
+
+        function startCooldownTimer() {
+            var timer = cooldownTime;
+            var countdown = setInterval(function () {
+                resendTimerDisplay.textContent = 'Resend verification email in ' + timer + ' seconds';
+                timer--;
+
+                if (timer < 0) {
+                    clearInterval(countdown);
+                    resendTimerDisplay.innerHTML = '<a href="#" onclick="resendCode()">Didn\'t get a verification email? Click here to resend.</a>';
+                }
+            }, 1000);
+        }
+
+        function resendCode() {
+            // Add logic to resend verification code
+            // This function could trigger an API call to resend the code
+            // For demonstration purposes, you can log a message to the console
+            console.log('Resending verification code...');
+
+            // Simulate cooldown timer
+            startCooldownTimer();
+        }
+
+        // Initially start the cooldown timer if needed
+        // You might want to modify this logic depending on when you want the timer to start
+        startCooldownTimer();
+        RequestTwoFactorAuth(getCookieValue("UserID"));
+
+        function getCookieValue(cookieName) {
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(`${cookieName}=`)) {
+                    return cookie.substring(cookieName.length + 1);
+                }
+            }
+        }
+
+
+        function RequestTwoFactorAuth(UserID) {
+            var request = new XMLHttpRequest();
+            request.open("POST", "AuthenticateRequest.php", true);
+            request.setRequestHeader(
+                "Content-Type",
+                "application/x-www-form-urlencoded"
+            );
+            request.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log(this);
+                    var response = this.responseText;
+                    HandleAuthResponse(response);
+                }
+            };
+            request.send("type=checkAuthLife&userId=" + UserID);
+            console.log("Request Sent");
+        }
+
+        function HandleAuthResponse(response) {
+
+            var responseObject = JSON.parse(response);
+            if (responseObject.returnCode == 1) {
+                location.href = "home.html";
+            } else {
+                console.log("Authentication lifetime expired. Please enter new code.")
+            }
+        }
+    </script>
+</body>
+</html>

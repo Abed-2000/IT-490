@@ -7,10 +7,7 @@ require_once('rabbitMQLib.inc');
 if ($_POST){
     $request = array();
     $request['type'] = $_POST["type"];
-    $request['username'] = $_POST["username"];
-    $request['password'] = $_POST["password"];
-    $request['email'] = $_POST["email"];
-    $request['twoFactor'] = $_POST["twoFactor"];
+    $request['userId'] = $_POST["userId"];
     $client = new rabbitMQClient("testRabbitMQ.ini", "testServer");
     $response = $client->send_request($request);
 
