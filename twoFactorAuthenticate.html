@@ -25,7 +25,38 @@
         function authenticate() {
             var authCode = document.getElementById('authCodeInput').value;
             console.log('Entered verification code:', authCode);
+            sendAuthRequest(getCookieValue("UserID"), authCode);
         }
+
+        function sendAuthRequest(UserID, authCode) {
+            var request = new XMLHttpRequest();
+            request.open("POST", "AuthenticateRequest.php", true);
+            request.setRequestHeader(
+                "Content-Type",
+                "application/x-www-form-urlencoded"
+            );
+            request.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log(this);
+                    var response = this.responseText;
+                    HandleTwoFactorAuthResponse(response);
+                }
+            };
+            request.send("type=authTwoFactor&userId=" + UserID + "&authCode=" + authCode);
+            console.log("Request Sent");
+        }
+        
+        function HandleTwoFactorAuthResponse(response){
+            var responseObject = JSON.parse(response);
+            if (responseObject.returnCode == 1) {
+                location.href = "home.html";
+            }else if(responseObject.returnCode == 0 ){
+                window.alert("Error: Incorrect Authentication Code. Please check your spam folders if you haven't recieved an email.");
+            }else{
+                window.alert("Error: Connecting to Server.");
+            }
+        }
+
 
         function startCooldownTimer() {
             var timer = cooldownTime;
@@ -42,6 +73,7 @@
 
         function resendCode() {
             console.log('Resending verification code...');
+            requestEmailAuth(getCookieValue("UserID"));
             startCooldownTimer();
         }
         startCooldownTimer();
@@ -76,13 +108,31 @@
             console.log("Request Sent");
         }
 
-        function HandleAuthResponse(response) {
 
+        function requestEmailAuth(UserID){
+            var request = new XMLHttpRequest();
+            request.open("POST", "AuthenticateRequest.php", true);
+            request.setRequestHeader(
+                "Content-Type",
+                "application/x-www-form-urlencoded"
+            );
+            request.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log(this);
+                    var response = this.responseText;
+                    HandleAuthResponse(response);
+                }
+            };
+            request.send("type=emailAuthCode&userId=" + UserID);
+            console.log("Request Sent");
+        }
+
+        function HandleAuthResponse(response) {
             var responseObject = JSON.parse(response);
             if (responseObject.returnCode == 1) {
                 location.href = "home.html";
-            } else {
-                console.log("Authentication lifetime expired. Please enter new code.")
+            } else if (responseObject.returnCode == 2){
+                requestEmailAuth(getCookieValue("UserID"));
             }
         }
     </script>

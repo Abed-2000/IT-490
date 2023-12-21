@@ -8,6 +8,9 @@ if ($_POST){
     $request = array();
     $request['type'] = $_POST["type"];
     $request['userId'] = $_POST["userId"];
+    if (isset($_POST["authCode"])) {
+        $request['authCode'] = $_POST["authCode"];
+    }
     $client = new rabbitMQClient("testRabbitMQ.ini", "testServer");
     $response = $client->send_request($request);
 

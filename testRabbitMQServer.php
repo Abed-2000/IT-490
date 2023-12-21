@@ -61,6 +61,15 @@ function doValidateAuthLife($userId){
   return validateAuthLife($userId);
 }
 
+function doEmailAuthCode($userId){
+  return emailAuthCode($userId);
+}
+
+function doTwoFactorAuthenticate($userId, $authCode){
+  return twoFactorAuthenticate($userId, $authCode);
+}
+
+
 function requestProcessor($request)
 {
   echo "received request".PHP_EOL;
@@ -97,6 +106,10 @@ function requestProcessor($request)
       return getRating($request['sessionID']);
     case "checkAuthLife":
       return doValidateAuthLife($request['userId']);
+    case "emailAuthCode":
+      return doEmailAuthCode($request['userId']);
+    case "authTwoFactor":
+      return doTwoFactorAuthenticate($request['userId'], $request['authCode']);
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }

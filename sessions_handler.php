@@ -346,4 +346,139 @@ function getMealRating($mealID) {
     }
 }
 
+function validateAuthLife($userId)
+{
+    global $dbHost, $dbUsername, $dbPassword, $dbName;
+
+    $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
+
+    if ($conn->connect_error) {
+        echo "Error connecting to the database: " . $conn->connect_error;
+        exit(1);
+    }
+
+    $sql = "SELECT LastAuthDateTime FROM twoFactorAuth WHERE UserId = '$userId' LIMIT 1";
+    $result = $conn->query($sql);
+
+    if ($result) {
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $lastAuthDateTime = strtotime($row['LastAuthDateTime']);
+                $currentDateTime = time();
+                $timeDiff = $currentDateTime - $lastAuthDateTime;
+                if ($timeDiff <= 48 * 3600) {
+                    return array('returnCode' => 1, 'message' => 'Authentication life validated.');
+                } else {
+
+                    return array('returnCode' => 2, 'message' => 'Authentication life expired.');
+                }
+            }
+        } else {
+            return array('returnCode' => 2, 'message' => 'User not found.');
+        }
+    } else {
+        return array('returnCode' => 0, 'message' => 'Error occurred in the query.');
+    }
+}
+
+function emailAuthCode($userId){
+    global $dbHost, $dbUsername, $dbPassword, $dbName;
+
+    $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
+
+    if ($conn->connect_error) {
+        echo "Error connecting to the database: " . $conn->connect_error;
+        exit(1);
+    }
+
+    $userId = $conn->real_escape_string($userId);
+
+    $sql = "SELECT Email FROM twoFactorAuth WHERE UserId = '$userId' LIMIT 1";
+    $result = $conn->query($sql);
+
+    if ($result && $result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $email = $row['Email'];
+        $newPassString = generateRandomPassString();
+        $updatePassStringQuery = "UPDATE twoFactorAuth SET PassString = '$newPassString' WHERE UserId = '$userId'";
+        if ($conn->query($updatePassStringQuery) === TRUE) {
+            $subject = "Verification Code";
+            if (sendEmail($email, $subject, $newPassString)) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+}
+
+function generateRandomPassString($length = 10) {
+    $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    $passString = '';
+    $charactersLength = strlen($characters);
+
+    for ($i = 0; $i < $length; $i++) {
+        $passString .= $characters[rand(0, $charactersLength - 1)];
+    }
+
+    return $passString;
+}
+
+
+function sendEmail($to, $subject, $authCode) {
+    $from = 'help@goodEats.com';
+    $headers = "From: $from\r\n";
+    $headers .= "Reply-To: $from\r\n";
+    $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+    $message = "Your verification code is: " . $authCode;
+    if (mail($to, $subject, $message, $headers)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function twoFactorAuthenticate($userId, $authCode){
+    global $dbHost, $dbUsername, $dbPassword, $dbName;
+
+    $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
+
+    if ($conn->connect_error) {
+        return array('returnCode' => -1, 'message' => 'Error connecting to the database');
+    }
+
+    $userId = $conn->real_escape_string($userId);
+    $authCode = $conn->real_escape_string($authCode);
+
+    $sql = "SELECT PassString FROM twoFactorAuth WHERE UserId = '$userId' LIMIT 1";
+    $result = $conn->query($sql);
+
+    if ($result && $result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $passString = $row['PassString'];
+
+        if ($authCode === $passString) {
+            $updateTimeSql = "UPDATE twoFactorAuth SET LastAuthDateTime = NOW() WHERE UserId = '$userId'";
+            if ($conn->query($updateTimeSql) === TRUE) {
+                $conn->close();
+                return array('returnCode' => 1, 'message' => 'Authentication successful');
+            } else {
+                $conn->close();
+                return array('returnCode' => 0, 'message' => 'Failed to update LastAuthDateTime');
+            }
+        } else {
+            $conn->close();
+            return array('returnCode' => 0, 'message' => 'Authentication failed');
+        }
+    } else {
+        $conn->close();
+        return array('returnCode' => 0, 'message' => 'User ID not found or other error');
+    }
+}
+
+
 ?>
