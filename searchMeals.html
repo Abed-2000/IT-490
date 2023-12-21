@@ -162,38 +162,38 @@
     }
     
     function HandleAPISearchResponse(response) {
-        var msgObject = document.getElementById("api_content");
-        msgObject.innerHTML = "";
-        var responseObject = JSON.parse(response);
-        if (responseObject.returnCode == 1) {
-            var messageArray = responseObject.message;
-            for (var i=0; i < messageArray.length; i++){
-                var item = messageArray[i];
-                var image = document.createElement("img");
-                image.src = item.strMealThumb;
-                var mealLink = document.createElement("a");
-                mealLink.href = "#";
-                mealLink.innerText = item.strMeal;
-                mealLink.setAttribute("data-mealid", item.idMeal);
-                mealLink.setAttribute("data-source", "external");
-                mealLink.addEventListener("click", handleMealLinkClick);
-                var origin = document.createElement("p");
-                origin.textContent = item.strArea;
-                var ItemDiv = document.createElement("div");
-                ItemDiv.appendChild(image);
-                ItemDiv.appendChild(mealLink);
-                ItemDiv.appendChild(origin);
-                msgObject.appendChild(ItemDiv);
-            }
-        }
-    }
-
-    function HandleDBSearchResponse(response, source) {
     var msgObject = document.getElementById("api_content");
     var responseObject = JSON.parse(response);
     if (responseObject.returnCode == 1) {
         var messageArray = responseObject.message;
-        messageArray.forEach(function (item) {
+        for (var i = 0; i < messageArray.length; i++) {
+            var item = messageArray[i];
+            var image = document.createElement("img");
+            image.src = item.strMealThumb;
+            var mealLink = document.createElement("a");
+            mealLink.href = "#";
+            mealLink.innerText = item.strMeal;
+            mealLink.setAttribute("data-mealid", item.idMeal);
+            mealLink.setAttribute("data-source", "external");
+            mealLink.addEventListener("click", handleMealLinkClick);
+            var origin = document.createElement("p");
+            origin.textContent = item.strArea;
+            var itemDiv = document.createElement("div");
+            itemDiv.classList.add("api-item");
+            itemDiv.appendChild(image);
+            itemDiv.appendChild(mealLink);
+            itemDiv.appendChild(origin);
+            msgObject.appendChild(itemDiv);
+        }
+    }
+}
+
+function HandleDBSearchResponse(response, source) {
+    var msgObject = document.getElementById("api_content");
+    var responseObject = JSON.parse(response);
+    if (responseObject.returnCode == 1) {
+        var messageArray = responseObject.message;
+        messageArray.forEach(function(item) {
             var image = document.createElement("img");
             image.src = item.strMealThumb;
 
@@ -206,14 +206,16 @@
             var origin = document.createElement("p");
             origin.textContent = item.strArea;
             var itemDiv = document.createElement("div");
+            itemDiv.classList.add("db-item");
             itemDiv.appendChild(image);
             itemDiv.appendChild(mealLink);
             itemDiv.appendChild(origin);
 
             msgObject.appendChild(itemDiv);
         });
-        }
+    }
 }
+
 
     function handleMealLinkClick(event) {
         event.preventDefault();
