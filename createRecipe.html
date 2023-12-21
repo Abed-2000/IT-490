@@ -195,9 +195,10 @@ function setCreatorName(){
             }
         }
     
-        function logoutBtn(){
+        var btn = document.getElementById('logout');
+        btn.addEventListener("click", function(){
             SendLogoutRequest(getCookieValue("sessionID"));
-        }
+        });
         
         function RequestPopulateCategory() {
         var request = new XMLHttpRequest();
