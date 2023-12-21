@@ -24,11 +24,7 @@
 
         function authenticate() {
             var authCode = document.getElementById('authCodeInput').value;
-
-            // Perform authentication logic here (send to backend, validate, etc.)
             console.log('Entered verification code:', authCode);
-
-            // You can add further logic here based on the authentication result
         }
 
         function startCooldownTimer() {
@@ -45,17 +41,9 @@
         }
 
         function resendCode() {
-            // Add logic to resend verification code
-            // This function could trigger an API call to resend the code
-            // For demonstration purposes, you can log a message to the console
             console.log('Resending verification code...');
-
-            // Simulate cooldown timer
             startCooldownTimer();
         }
-
-        // Initially start the cooldown timer if needed
-        // You might want to modify this logic depending on when you want the timer to start
         startCooldownTimer();
         RequestTwoFactorAuth(getCookieValue("UserID"));
 
